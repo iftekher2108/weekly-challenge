@@ -3,7 +3,8 @@
          <!-- Logo Header -->
          <div class="logo-header" data-background-color="dark">
              <a href="index.html" class="logo">
-                 <img src="{{ asset('assets/backend/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+                 <img src="{{ asset('assets/backend/img/kaiadmin/logo_light.svg') }}" alt="navbar brand"
+                     class="navbar-brand" height="20" />
              </a>
              <div class="nav-toggle">
                  <button class="btn btn-toggle toggle-sidebar">
@@ -22,13 +23,16 @@
      <div class="sidebar-wrapper scrollbar scrollbar-inner">
          <div class="sidebar-content">
              <ul class="nav nav-secondary">
-                 <li class="nav-item active">
-                     <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                 <li @class([
+                     'nav-item',
+                     'active' => request()->routeIs('admin.dashboard'),
+                 ])>
+
+                     <a href="{{ route('admin.dashboard') }}">
                          <i class="fas fa-home"></i>
                          <p>Dashboard</p>
-                         <span class="caret"></span>
                      </a>
-                     <div class="collapse" id="dashboard">
+                     {{-- <div class="collapse" id="dashboard">
                          <ul class="nav nav-collapse">
                              <li>
                                  <a href="../demo1/index.html">
@@ -36,33 +40,44 @@
                                  </a>
                              </li>
                          </ul>
-                     </div>
+                     </div> --}}
                  </li>
-                 <li class="nav-section">
+                 {{-- <li class="nav-section">
                      <span class="sidebar-mini-icon">
                          <i class="fa fa-ellipsis-h"></i>
                      </span>
                      <h4 class="text-section">Module</h4>
+                 </li> --}}
+
+                 <li class="nav-item">
+                     <a href="">
+                         <i class="fas fa-layer-group"></i>
+                         <p>Task List</p>
+
+                     </a>
                  </li>
+
                  <li class="nav-item">
                      <a data-bs-toggle="collapse" href="#base">
                          <i class="fas fa-layer-group"></i>
-                         <p>Base</p>
+                         <p>Task Management</p>
                          <span class="caret"></span>
                      </a>
                      <div class="collapse" id="base">
                          <ul class="nav nav-collapse">
-                             <li>
-                                 <a href="components/avatars.html">
-                                     <span class="sub-item">Avatars</span>
+                             <li @class([ 'active' => request()->routeIs('admin.category')])>
+                                 <a href="{{ route('admin.category') }}">
+                                     <span class="sub-item">Category</span>
                                  </a>
                              </li>
+
                              <li>
                                  <a href="components/buttons.html">
-                                     <span class="sub-item">Buttons</span>
+                                     <span class="sub-item">Tesk</span>
                                  </a>
                              </li>
-                             <li>
+
+                             {{-- <li>
                                  <a href="components/gridsystem.html">
                                      <span class="sub-item">Grid System</span>
                                  </a>
@@ -71,16 +86,23 @@
                                  <a href="components/panels.html">
                                      <span class="sub-item">Panels</span>
                                  </a>
-                             </li>
+                             </li> --}}
 
 
                          </ul>
                      </div>
                  </li>
 
-
-
                  <li class="nav-item">
+                     <a href="">
+                         <i class="fas fa-layer-group"></i>
+                         <p>Task Report</p>
+                     </a>
+                 </li>
+
+
+
+                 {{-- <li class="nav-item">
                      <a data-bs-toggle="collapse" href="#sidebarLayouts">
                          <i class="fas fa-th-list"></i>
                          <p>Sidebar Layouts</p>
@@ -100,7 +122,7 @@
                              </li>
                          </ul>
                      </div>
-                 </li>
+                 </li> --}}
 
 
 
