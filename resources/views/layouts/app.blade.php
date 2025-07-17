@@ -375,6 +375,21 @@
             <div class="container">
                 <div class="page-inner">
 
+                    @session('success')
+                        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                            {{ $value }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endsession
+
+                    @session('error')
+                         <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                            {{ $value }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endsession
+
+
                     @yield('content')
 
                 </div>
@@ -409,7 +424,7 @@
 
 
             <!-- Custom template | don't include it in your project! -->
-                @include('layouts.theme')
+            @include('layouts.theme')
             <!-- End Custom template -->
         </div>
 

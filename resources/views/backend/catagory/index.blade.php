@@ -8,108 +8,131 @@
         </div>
         <div class="ms-md-auto py-2 py-md-0">
             {{-- <a href="#" class="btn btn-label-info btn-round me-2">Refresh</a> --}}
-            <x-model.m-button label='Add Category' />
+            <x-model.m-button label='Add Category' target="categoryModel" />
         </div>
     </div>
 
 
-    <x-model.dialog
-    title="Add Category"
-    btnLabel="Add Category"
-    >
+    <x-model.dialog title="Add Category" route="admin.category.store" target="categoryModel" btnLabel="Add Category">
+
+        <!-- Hidden User ID -->
+        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+
+        <!-- Parent Category Select -->
+        <div class="mb-3">
+
+            <label for="parent_id" class="form-label">Parent Category</label>
+            <select class="form-select @error('parent_id') is-invalid @enderror" id="parent_id" name="parent_id">
+                <option value="">-- None --</option>
+                @foreach ($categories->whereNull('parent_id') as $parent)
+                    @include('backend.catagory.select-option', ['category' => $parent, 'prefix' => ''])
+                @endforeach
+            </select>
+            @error('parent_id')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Picture Upload with Thumbnail -->
+        <div class="mb-3">
+            <label for="picture" class="form-label">Category Picture</label>
+            <input type="file" class="form-control @error('picture') is-invalid @enderror" id="picture" name="picture"
+                accept="image/*">
+            <img id="preview-thumb" src="#" class="img-thumbnail mt-2" style="display: none; max-height: 100px;"
+                alt="Preview">
+            @error('picture')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Title -->
+        <div class="mb-3">
+            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
+                required>
+            @error('title')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label for="description" class="form-label @error('description') is-invalid @enderror">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            @error('description')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
     </x-model.dialog>
 
 
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header">
-                {{-- <h4 class="card-title">Multi Filter Select</h4> --}}
-            </div>
+            {{-- <div class="card-header">
+                <h4 class="card-title">Multi Filter Select</h4>
+            </div> --}}
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                    <table class="multi-filter-select display table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Position</th>
-                                <th>Office</th>
-                                <th>Age</th>
-                                <th>Start date</th>
-                                <th>Salary</th>
+                                <th>Picture</th>
+                                <th>Parent</th>
+                                <th>title</th>
+                                {{-- <th>description</th> --}}
+                                <th>Action</th>
+
                             </tr>
                         </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Name</th>
-                                <th>Position</th>
-                                <th>Office</th>
-                                <th>Age</th>
-                                <th>Start date</th>
-                                <th>Salary</th>
-                            </tr>
-                        </tfoot>
+
                         <tbody>
-                            <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
-                            </tr>
-                            <tr>
-                                <td>Garrett Winters</td>
-                                <td>Accountant</td>
-                                <td>Tokyo</td>
-                                <td>63</td>
-                                <td>2011/07/25</td>
-                                <td>$170,750</td>
-                            </tr>
+
+                            @foreach ($categories as $category)
+                                <tr>
+                                    <td><img src="{{ asset('storage/category/'. $category->picture) }}" alt=""></td>
+                                    <td>{{ $category->parent->title ?? 'N/a' }}</td>
+                                    <td>{{ $category->title }}</td>
+                                    {{-- <td>{{ $category->description }}</td> --}}
+                                    <td>
+                                        <a href="" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
+                                        <a href="" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+
 
                         </tbody>
+                        {{-- <tfoot>
+                            <tr>
+                                <th>Picture</th>
+                                <th>Parent</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th colspan="2">Action</th>
+
+                            </tr>
+                        </tfoot> --}}
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 
 @push('scripts')
     <script>
-        $("#multi-filter-select").DataTable({
+        $(".multi-filter-select").DataTable({
             stateSave: true,
             lengthMenu: [5, 10, 25, 50, 150, 200],
             pageLength: 5,
-            initComplete: function() {
-                this.api()
-                    .columns()
-                    .every(function() {
-                        var column = this;
-                        var select = $(
-                                '<select class="form-select"><option value=""></option></select>'
-                            )
-                            .appendTo($(column.footer()).empty())
-                            .on("change", function() {
-                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-
-                                column
-                                    .search(val ? "^" + val + "$" : "", true, false)
-                                    .draw();
-                            });
-
-                        column
-                            .data()
-                            .unique()
-                            .sort()
-                            .each(function(d, j) {
-                                select.append(
-                                    '<option value="' + d + '">' + d + "</option>"
-                                );
-                            });
-                    });
-            },
+            columnDefs: [{
+                    orderable: false,
+                    targets: [-1]
+                }, // -1 = last column
+            ],
         });
     </script>
 @endpush

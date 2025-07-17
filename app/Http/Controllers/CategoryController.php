@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
@@ -12,15 +14,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view('backend.catagory.index');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $categories = Category::Where('user_id','=',Auth::user()->id)->with(['children','parent'])->get();
+        return view('backend.catagory.index',compact('categories'));
     }
 
     /**
@@ -28,7 +23,31 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'parent_id' => 'nullable|integer',
+            'picture' => 'image|mimes:png,jpg|nullable|max:2028',
+            'title' => 'string|required|max:30',
+            'description' => 'string|nullable|max:250'
+        ]);
+
+        DB::transaction(function() use($request) {
+        $picture = null;
+        if($request->hasFile('picture')) {
+            $dirname = 'category';
+            $filename = 'cat_'.now().'_'. Date('d-M-Y').'.'. $request->file('picture')->extension();
+           $request->file('picture')->storeAs($dirname,$filename,'public');
+            $picture = $filename;
+        }
+            Category::create([
+                'user_id' => $request->user_id,
+                'picture' => $picture,
+                'parent_id' => $request->parent_id,
+                'title' => $request->title,
+                'description' => $request->description,
+            ]);
+        });
+
+        return redirect()->route('admin.category')->with('success','Category added Successfully');
     }
 
     /**

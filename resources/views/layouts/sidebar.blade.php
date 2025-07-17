@@ -50,7 +50,7 @@
                  </li> --}}
 
                  <li class="nav-item">
-                     <a href="">
+                     <a href="{{ route('admin.taskList') }}">
                          <i class="fas fa-layer-group"></i>
                          <p>Task List</p>
 

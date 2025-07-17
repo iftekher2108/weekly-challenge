@@ -4,24 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\taskList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskListController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = taskList::query();
+
+        if($request->search) {
+
+            $query->where('title',$request->search);
+
+        }
+       $taskLists = $query->paginate(20);
+        return view('backend.task-list.index',compact(var_name: 'taskLists'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('task_lists', function (Blueprint $table) {
             $table->id();
+            $table->string('picture')->nullable();
             $table->string('title');
             $table->string('description')->nullable();
-            
+
             $table->timestamps();
         });
     }
