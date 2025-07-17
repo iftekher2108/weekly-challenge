@@ -63,7 +63,7 @@
                 <div class="main-header-logo">
                     <!-- Logo Header -->
                     <div class="logo-header" data-background-color="dark">
-                        <a href="index.html" class="logo">
+                        <a href="{{ route('admin.dashboard') }}" class="logo">
                             <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand"
                                 height="20" />
                         </a>
@@ -323,8 +323,8 @@
                                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
                                     aria-expanded="false">
                                     <div class="avatar-sm">
-                                        <img src="{{ asset('assets/backend/img/profile.jpg') }}" alt="..."
-                                            class="avatar-img rounded-circle" />
+                                        <img src="{{ Auth::user()->picture ? asset('storage/user/' . Auth::user()->picture) : asset('assets/backend/img/profile.jpg') }}"
+                                            alt="..." class="avatar-img rounded-circle" />
                                     </div>
                                     <span class="profile-username">
                                         <span class="op-7">Hi,</span>
@@ -336,13 +336,14 @@
                                         <li>
                                             <div class="user-box">
                                                 <div class="avatar-lg">
-                                                    <img src="{{ asset('assets/backend/img/profile.jpg') }}"
+                                                    <img src="{{ Auth::user()->picture ? asset('storage/user/' . Auth::user()->picture) : asset('assets/backend/img/profile.jpg') }}"
                                                         alt="image profile" class="avatar-img rounded" />
                                                 </div>
                                                 <div class="u-text">
                                                     <h4>{{ Auth::user()->name }}</h4>
                                                     <p class="text-muted">{{ Auth::user()->email }}</p>
-                                                    <a href="profile.html" class="btn btn-xs btn-secondary btn-sm">View
+                                                    <a href="{{ route('admin.profile') }}"
+                                                        class="btn btn-xs btn-secondary btn-sm">View
                                                         Profile</a>
                                                 </div>
                                             </div>
@@ -383,11 +384,24 @@
                     @endsession
 
                     @session('error')
-                         <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
                             {{ $value }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endsession
+
+                    @if ($errors->any())
+                        <div class="mb-3">
+                            @foreach ($errors->all() as $error)
+                                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                    {{ $error }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    @endif
 
 
                     @yield('content')
@@ -454,8 +468,8 @@
         <script src="{{ asset('assets/backend/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
 
         <!-- jQuery Vector Maps -->
-        <script src="{{ asset('assets/backend/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
-        <script src="{{ asset('assets/backend/js/plugin/jsvectormap/world.js') }}"></script>
+        {{-- <script src="{{ asset('assets/backend/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
+        <script src="{{ asset('assets/backend/js/plugin/jsvectormap/world.js') }}"></script> --}}
 
         <!-- Sweet Alert -->
         <script src="{{ asset('assets/backend/js/plugin/sweetalert/sweetalert.min.js') }}"></script>

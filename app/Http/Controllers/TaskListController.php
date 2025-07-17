@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\taskList;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TaskListController extends Controller
 {
@@ -15,13 +16,12 @@ class TaskListController extends Controller
     {
         $query = taskList::query();
 
-        if($request->search) {
-
-            $query->where('title',$request->search);
-
+       if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where('title','like',"%".$search."%");
         }
-       $taskLists = $query->paginate(20);
-        return view('backend.task-list.index',compact(var_name: 'taskLists'));
+       $taskLists = $query->paginate(35);
+        return view('backend.task-list.index',compact( 'taskLists'));
     }
 
 
@@ -30,7 +30,28 @@ class TaskListController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         $request->validate([
+            'picture' => 'image|mimes:png,jpg|nullable|max:2028',
+            'title' => 'string|required|max:30',
+            'description' => 'string|nullable|max:250'
+        ]);
+
+        DB::transaction(function() use($request) {
+        $picture = null;
+        if($request->hasFile('picture')) {
+            $dirname = 'task-list';
+            $filename = 'task-list_'.time().'_'. Date('d-M-Y').'.'. $request->file('picture')->extension();
+           $request->file('picture')->storeAs($dirname,$filename,'public');
+            $picture = $filename;
+        }
+            taskList::create([
+                'picture' => $picture,
+                'title' => $request->title,
+                'description' => $request->description,
+            ]);
+        });
+
+        return redirect()->route('admin.taskList')->with('success','Category added Successfully');
     }
 
     /**
@@ -60,8 +81,13 @@ class TaskListController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(taskList $taskList)
+    public function delete($id)
     {
-        //
+        $taskList = taskList::findOrFail($id);
+        if(Storage::disk('public')->exists('task-list/'. $taskList->picture)) {
+            Storage::disk('public')->delete('task-list/'. $taskList->picture);
+        }
+        $taskList->delete();
+        return redirect()->route('admin.taskList')->with('success',"Task-List Delete Successfully");
     }
 }

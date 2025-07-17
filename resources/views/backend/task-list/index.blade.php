@@ -7,7 +7,7 @@
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
         <div class="ms-md-auto py-2 py-md-0">
-            {{-- <a href="#" class="btn btn-label-info btn-round me-2">Refresh</a> --}}
+            <a href="{{ route('admin.taskList') }}" class="btn btn-label-info btn-round me-2">Refresh</a>
             <x-model.m-button label='Add Task List' target="categoryModel" />
         </div>
     </div>
@@ -36,10 +36,10 @@
         <!-- Picture Upload with Thumbnail -->
         <div class="mb-3">
             <label for="picture" class="form-label">Category Picture</label>
-            <input type="file" class="form-control @error('picture') is-invalid @enderror" id="picture" name="picture"
-                accept="image/*">
-            <img id="preview-thumb" src="#" class="img-thumbnail mt-2" style="display: none; max-height: 100px;"
-                alt="Preview">
+            <input type="file" class="form-control input-picture @error('picture') is-invalid @enderror" id="picture"
+                name="picture" accept="image/*">
+            <img id="preview-thumb" src="{{ asset('assets/backend/img/preview.png') }}" class="img-thumbnail mt-2"
+                style="max-height: 120px;" alt="Preview">
             @error('picture')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -69,9 +69,20 @@
 
     <div class="col-md-12">
         <div class="card">
-            {{-- <div class="card-header">
-                <h4 class="card-title">Multi Filter Select</h4>
-            </div> --}}
+            <div class="card-header">
+                <div class="d-flex justify-content-end">
+                    <div class="d-md-block d-none">
+
+                    </div>
+                    <form action="{{ route('admin.taskList') }}" method="GET" class="d-flex gap-1">
+                        <input type="text" class="form-control" name="search" placeholder="Search">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                </div>
+
+
+                {{-- <h4 class="card-title">Multi Filter Select</h4> --}}
+            </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="multi-filter-select display table table-striped table-hover">
@@ -88,16 +99,21 @@
 
                         <tbody>
 
-                            @forelse($taskLists as $category)
+                            @forelse($taskLists as $taskList)
                                 <tr>
-                                    <td><img src="{{ asset('storage/task-list/' . $category->picture) }}" alt="">
+                                    <td>
+                                        <img src="{{ asset('storage/task-list/' . $taskList->picture) }}" class="img-thumbnail" style="max-height: 70px;" alt="">
                                     </td>
-                                    {{-- <td>{{ $category->parent->title ?? 'N/a' }}</td> --}}
-                                    <td>{{ $category->title }}</td>
-                                    {{-- <td>{{ $category->description }}</td> --}}
+                                    {{-- <td>{{ $taskList->parent->title ?? 'N/a' }}</td> --}}
+                                    <td>{{ $taskList->title }}</td>
+                                    <td>{{ $taskList->description }}</td>
                                     <td>
                                         <a href="" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
-                                        <a href="" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>
+                                        <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>
+                                        <form id="delete-form" action="{{ route('admin.taskList.delete',$taskList->id) }}" method="POST" >
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
                                     </td>
                                 </tr>
                             @empty
@@ -120,23 +136,75 @@
             </div>
         </div>
     </div>
+
+    <div>
+        {{ $taskLists->links() }}
+    </div>
+
 @endsection
 
-{{--
+
 @push('scripts')
     <script>
-        $(".multi-filter-select").DataTable({
-            stateSave: true,
-            lengthMenu: [5, 10, 25, 50, 150, 200],
-            pageLength: 5,
-            columnDefs: [{
-                    orderable: false,
-                    targets: [-1]
-                }, // -1 = last column
-            ],
+        // $(".multi-filter-select").DataTable({
+        //     stateSave: true,
+        //     lengthMenu: [5, 10, 25, 50, 150, 200],
+        //     pageLength: 5,
+        //     columnDefs: [{
+        //             orderable: false,
+        //             targets: [-1]
+        //         }, // -1 = last column
+        //     ],
+        // });
+
+        $('#preview-thumb').on('click', function() {
+            $('.input-picture').click()
+        })
+        $('.input-picture').on('change', function(e) {
+            var filePath = URL.createObjectURL(e.target.files[0]);
+            $('#preview-thumb').show('300');
+            $('#preview-thumb').attr('src', filePath); // Pass filePath as the src
         });
+
+
+        $('.delete-btn').on('click',function(e) {
+            swal({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              type: "warning",
+              buttons: {
+                confirm: {
+                  text: "Yes, delete it!",
+                  className: "btn btn-success",
+                },
+                cancel: {
+                  visible: true,
+                  className: "btn btn-danger",
+                },
+              },
+            }).then((Delete) => {
+              if (Delete) {
+                $('#delete-form').submit();
+                swal({
+                  title: "Deleted!",
+                  text: "Your file has been deleted.",
+                  type: "success",
+                  buttons: {
+                    confirm: {
+                      className: "btn btn-success",
+                    },
+                  },
+                });
+              } else {
+                swal.close();
+              }
+            });
+          });
+
+
+
     </script>
-@endpush --}}
+@endpush
 
 
 

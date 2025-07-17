@@ -36,9 +36,9 @@
         <!-- Picture Upload with Thumbnail -->
         <div class="mb-3">
             <label for="picture" class="form-label">Category Picture</label>
-            <input type="file" class="form-control @error('picture') is-invalid @enderror" id="picture" name="picture"
-                accept="image/*">
-            <img id="preview-thumb" src="#" class="img-thumbnail mt-2" style="display: none; max-height: 100px;"
+            <input type="file" class="form-control input-picture @error('picture') is-invalid @enderror" id="picture"
+                name="picture" accept="image/*">
+            <img id="preview-thumb" src="{{ asset('assets/backend/img/preview.png') }}" class="img-thumbnail mt-2" style="max-height: 120px;"
                 alt="Preview">
             @error('picture')
                 <span class="text-danger">{{ $message }}</span>
@@ -90,13 +90,17 @@
 
                             @foreach ($categories as $category)
                                 <tr>
-                                    <td><img src="{{ asset('storage/category/'. $category->picture) }}" alt=""></td>
-                                    <td>{{ $category->parent->title ?? 'N/a' }}</td>
+                                    <td><img src="{{ asset('storage/category/' . $category->picture) }}" class="img-thumbnail" style="max-height: 70px;" alt=""></td>
+                                    <td>{{ $category->parent->title ?? '' }}</td>
                                     <td>{{ $category->title }}</td>
                                     {{-- <td>{{ $category->description }}</td> --}}
                                     <td>
                                         <a href="" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
-                                        <a href="" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>
+                                        <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>
+                                        <form id="delete-form" action="{{ route('admin.category.delete',$category->id) }}" method="POST" >
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -118,12 +122,12 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 
 @push('scripts')
     <script>
+
         $(".multi-filter-select").DataTable({
             stateSave: true,
             lengthMenu: [5, 10, 25, 50, 150, 200],
@@ -134,5 +138,52 @@
                 }, // -1 = last column
             ],
         });
+
+
+          $('#preview-thumb').on('click',function() {
+           $('.input-picture').click()
+        })
+        $('.input-picture').on('change', function(e) {
+            var filePath = URL.createObjectURL(e.target.files[0]);
+            $('#preview-thumb').show('300');
+            $('#preview-thumb').attr('src', filePath); // Pass filePath as the src
+        });
+
+
+        $('.delete-btn').on('click',function(e) {
+            swal({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              type: "warning",
+              buttons: {
+                confirm: {
+                  text: "Yes, delete it!",
+                  className: "btn btn-success",
+                },
+                cancel: {
+                  visible: true,
+                  className: "btn btn-danger",
+                },
+              },
+            }).then((Delete) => {
+              if (Delete) {
+                $('#delete-form').submit();
+                swal({
+                  title: "Deleted!",
+                  text: "Your file has been deleted.",
+                  type: "success",
+                  buttons: {
+                    confirm: {
+                      className: "btn btn-success",
+                    },
+                  },
+                });
+              } else {
+                swal.close();
+              }
+            });
+          });
+
+
     </script>
 @endpush

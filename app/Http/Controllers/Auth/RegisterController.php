@@ -73,9 +73,9 @@ class RegisterController extends Controller
         $picture = null;
 
         if(request()->hasFile('picture')) {
-            $filename = 'user-'.time() . date('d-M-Y').".". request()->file('picture')->extension();
-         $picture = request()->file('picture')->storeAs('user',$filename,'public');
-
+            $filename = 'user_'.time().'_' . date('d-M-Y').".". request()->file('picture')->extension();
+            request()->file('picture')->storeAs('user',$filename,'public');
+            $picture = $filename;
         }
 
           $user = User::create([

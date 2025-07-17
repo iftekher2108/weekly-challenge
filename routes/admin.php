@@ -9,19 +9,22 @@ use Illuminate\Support\Facades\Auth;
 
 Auth::routes();
 
-Route::middleware([])->group(function() {
+Route::middleware(['auth'])->group(function() {
     Route::controller(HomeController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('admin.dashboard');
+        Route::get('profile','profile')->name('admin.profile');
     });
 
     Route::controller(CategoryController::class)->group(function () {
         Route::get('/category', 'index')->name('admin.category');
         Route::post('category/store', 'store')->name('admin.category.store');
+        Route::delete('category/{id}/delete','delete')->name('admin.category.delete');
     });
 
     Route::controller(TaskListController::class)->group(function() {
         Route::get('task-list','index')->name('admin.taskList');
         Route::post('task-list/store','store')->name('admin.taskList.store');
+        Route::delete('task-list/{id}/delete','delete')->name('admin.taskList.delete');
     });
 });
 

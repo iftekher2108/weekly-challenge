@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -34,7 +35,7 @@ class CategoryController extends Controller
         $picture = null;
         if($request->hasFile('picture')) {
             $dirname = 'category';
-            $filename = 'cat_'.now().'_'. Date('d-M-Y').'.'. $request->file('picture')->extension();
+            $filename = 'cat_'.time().'_'. Date('d-M-Y').'.'. $request->file('picture')->extension();
            $request->file('picture')->storeAs($dirname,$filename,'public');
             $picture = $filename;
         }
@@ -77,8 +78,14 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function delete($id)
     {
-        //
+
+        $category = Category::findOrFail($id);
+        if(Storage::disk('public')->exists('category/'. $category->picture)) {
+            Storage::disk('public')->delete('category/'. $category->picture);
+        }
+        $category->delete();
+        return redirect()->route('admin.category')->with('success',"category Delete Successfully");
     }
 }

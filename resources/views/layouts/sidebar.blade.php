@@ -2,7 +2,7 @@
      <div class="sidebar-logo">
          <!-- Logo Header -->
          <div class="logo-header" data-background-color="dark">
-             <a href="index.html" class="logo">
+             <a href="{{ route('admin.dashboard') }}" class="logo">
                  <img src="{{ asset('assets/backend/img/kaiadmin/logo_light.svg') }}" alt="navbar brand"
                      class="navbar-brand" height="20" />
              </a>
@@ -73,7 +73,7 @@
 
                              <li>
                                  <a href="components/buttons.html">
-                                     <span class="sub-item">Tesk</span>
+                                     <span class="sub-item">Task</span>
                                  </a>
                              </li>
 
