@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\taskList;
+use App\Models\task;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
-class TaskListController extends Controller
+class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = taskList::query();
+         $query = task::query();
 
-        // $categories =
+       $categories = Category::Where('user_id','=',Auth::user()->id)->with(['children','parent'])->get();
+
 
        if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where('title','like',"%".$search."%");
         }
-       $taskLists = $query->paginate(35);
-        return view('backend.task-list.index',compact( 'taskLists'));
+       $tasks = $query->paginate(35);
+        return view('backend.task.index',compact('tasks','categories'));
     }
 
 
@@ -32,7 +34,9 @@ class TaskListController extends Controller
      */
     public function store(Request $request)
     {
-         $request->validate([
+          $request->validate([
+            'cat_id' => 'required',
+            'user_id' => 'required',
             'picture' => 'image|mimes:png,jpg|nullable|max:2028',
             'title' => 'string|required|max:30',
             'description' => 'string|nullable|max:250'
@@ -46,20 +50,22 @@ class TaskListController extends Controller
            $request->file('picture')->storeAs($dirname,$filename,'public');
             $picture = $filename;
         }
-            taskList::create([
+            task::create([
+                'user_id' => $request->user_id,
+                'cat_id' => $request->cat_id,
                 'picture' => $picture,
                 'title' => $request->title,
                 'description' => $request->description,
             ]);
         });
 
-        return redirect()->route('admin.taskList')->with('success','Category added Successfully');
+        return redirect()->route('admin.task')->with('success','Task added Successfully');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(taskList $taskList)
+    public function show(task $task)
     {
         //
     }
@@ -67,7 +73,7 @@ class TaskListController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(taskList $taskList)
+    public function edit(task $task)
     {
         //
     }
@@ -75,7 +81,7 @@ class TaskListController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, taskList $taskList)
+    public function update(Request $request, task $task)
     {
         //
     }
@@ -83,13 +89,8 @@ class TaskListController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete($id)
+    public function destroy(task $task)
     {
-        $taskList = taskList::findOrFail($id);
-        if(Storage::disk('public')->exists('task-list/'. $taskList->picture)) {
-            Storage::disk('public')->delete('task-list/'. $taskList->picture);
-        }
-        $taskList->delete();
-        return redirect()->route('admin.taskList')->with('success',"Task-List Delete Successfully");
+        //
     }
 }

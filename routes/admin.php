@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskListController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,13 @@ Route::middleware(['auth'])->group(function() {
         Route::post('task-list/store','store')->name('admin.taskList.store');
         Route::delete('task-list/{id}/delete','delete')->name('admin.taskList.delete');
     });
+
+    Route::controller(TaskController::class)->group(function() {
+        Route::get('task','index')->name('admin.task');
+        Route::post('task/store','store')->name('admin.task.store');
+        Route::delete('task/{id}/delete','delete')->name('admin.task.delete');
+    });
+
 });
 
 

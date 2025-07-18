@@ -49,13 +49,6 @@
                      <h4 class="text-section">Module</h4>
                  </li> --}}
 
-                 <li class="nav-item">
-                     <a href="{{ route('admin.taskList') }}">
-                         <i class="fas fa-layer-group"></i>
-                         <p>Task List</p>
-
-                     </a>
-                 </li>
 
                  <li class="nav-item">
                      <a data-bs-toggle="collapse" href="#base">
@@ -71,8 +64,8 @@
                                  </a>
                              </li>
 
-                             <li>
-                                 <a href="components/buttons.html">
+                             <li @class([ 'active' => request()->routeIs('admin.task')])>
+                                 <a href="{{ route('admin.task')}}">
                                      <span class="sub-item">Task</span>
                                  </a>
                              </li>
@@ -91,6 +84,14 @@
 
                          </ul>
                      </div>
+                 </li>
+
+                  <li class="nav-item">
+                     <a href="{{ route('admin.taskList') }}">
+                         <i class="fas fa-layer-group"></i>
+                         <p>Task List</p>
+
+                     </a>
                  </li>
 
                  <li class="nav-item">
