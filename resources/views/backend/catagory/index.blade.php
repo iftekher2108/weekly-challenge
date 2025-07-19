@@ -84,7 +84,7 @@
                                 <th>Picture</th>
                                 <th>Parent</th>
                                 <th>title</th>
-                                {{-- <th>description</th> --}}
+                                <th>description</th>
                                 <th>Action</th>
 
                             </tr>
@@ -97,7 +97,7 @@
                                     <td><img src="{{ asset('storage/category/' . $category->picture) }}" class="img-thumbnail" style="max-height: 70px;" alt=""></td>
                                     <td>{{ $category->parent->title ?? '' }}</td>
                                     <td>{{ $category->title }}</td>
-                                    {{-- <td>{{ $category->description }}</td> --}}
+                                    <td>{{ $category->description }}</td>
                                     <td>
                                         <a href="{{ route('admin.category.edit',$category->id) }}" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
                                         <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>

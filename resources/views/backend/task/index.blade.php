@@ -78,7 +78,7 @@
                     <div class="d-md-block d-none">
 
                     </div>
-                    <form action="{{ route('admin.taskList') }}" method="GET" class="d-flex gap-1">
+                    <form action="{{ route('admin.task') }}" method="GET" class="d-flex gap-1">
                         <input type="text" class="form-control" name="search" placeholder="Search">
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>

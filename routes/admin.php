@@ -20,7 +20,7 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/category', 'index')->name('admin.category');
         Route::post('category/store', 'store')->name('admin.category.store');
         Route::get('category/{id}/edit','edit')->name('admin.category.edit');
-        Route::put('category/{id}/update')->name('admin.category.update');
+        Route::put('category/{id}/update','update')->name('admin.category.update');
         Route::delete('category/{id}/delete','delete')->name('admin.category.delete');
     });
 
