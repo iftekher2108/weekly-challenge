@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
 
+@push('styles')
+<style>
+
+
+
+</style>
+@endpush
+
 @section('content')
-    this is task list page
+   <div>
+
+   </div>
 @endsection
+
+@push('scripts')
+
+@endpush
