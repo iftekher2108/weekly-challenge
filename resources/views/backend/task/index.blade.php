@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
         <div>
-            <h3 class="fw-bold mb-3">Task List</h3>
+            <h3 class="fw-bold mb-3">Task</h3>
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
         <div class="ms-md-auto py-2 py-md-0">
@@ -25,7 +25,11 @@
             <select class="form-select @error('cat_id') is-invalid @enderror" id="cat_id" name="cat_id">
                 <option value="">-- None --</option>
                 @foreach ($categories->whereNull('parent_id') as $parent)
-                    @include('backend.catagory.select-option', ['category' => $parent, 'prefix' => ''])
+                    @include('backend.catagory.select-option', [
+                        'category' => $parent,
+                        'selected' => old('cat_id'),
+                         'prefix' => ''
+                         ])
                 @endforeach
             </select>
             @error('cat_id')
@@ -48,7 +52,7 @@
         <!-- Title -->
         <div class="mb-3">
             <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
+            <input type="text" value="{{ old('title') }}" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                 required>
             @error('title')
                 <span class="text-danger">{{ $message }}</span>
@@ -58,7 +62,7 @@
         <!-- Description -->
         <div class="mb-3">
             <label for="description" class="form-label @error('description') is-invalid @enderror">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
             @error('description')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -102,13 +106,13 @@
                             @forelse($tasks as $task)
                                 <tr>
                                     <td>
-                                        <img src="{{ asset('storage/task-list/' . $task->picture) }}" class="img-thumbnail" style="max-height: 70px;" alt="">
+                                        <img src="{{ asset('storage/task/' . $task->picture) }}" class="img-thumbnail" style="max-height: 70px;" alt="">
                                     </td>
                                     {{-- <td>{{ $taskList->parent->title ?? 'N/a' }}</td> --}}
                                     <td>{{ $task->title }}</td>
                                     <td>{{ $task->description }}</td>
                                     <td>
-                                        <a href="" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
+                                        <a href="{{ route('admin.edit',$task->id) }}" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
                                         <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>
                                         <form id="delete-form" action="{{ route('admin.task.delete',$task->id) }}" method="POST" >
                                             @csrf

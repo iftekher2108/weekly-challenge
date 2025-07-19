@@ -25,7 +25,11 @@
             <select class="form-select @error('parent_id') is-invalid @enderror" id="parent_id" name="parent_id">
                 <option value="">-- None --</option>
                 @foreach ($categories->whereNull('parent_id') as $parent)
-                    @include('backend.catagory.select-option', ['category' => $parent, 'prefix' => ''])
+                    @include('backend.catagory.select-option', [
+                        'category' => $parent,
+                        'selected' => old('parent_id'),
+                    'prefix' => ''
+                    ])
                 @endforeach
             </select>
             @error('parent_id')
@@ -48,7 +52,7 @@
         <!-- Title -->
         <div class="mb-3">
             <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
+            <input type="text" value="{{ old('title') }}" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                 required>
             @error('title')
                 <span class="text-danger">{{ $message }}</span>
@@ -58,7 +62,7 @@
         <!-- Description -->
         <div class="mb-3">
             <label for="description" class="form-label @error('description') is-invalid @enderror">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
             @error('description')
                 <span class="text-danger">{{ $message }}</span>
             @enderror

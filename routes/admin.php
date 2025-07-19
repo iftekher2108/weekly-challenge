@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function() {
     Route::controller(TaskController::class)->group(function() {
         Route::get('task','index')->name('admin.task');
         Route::post('task/store','store')->name('admin.task.store');
+        Route::get('task/{id}/edit','edit')->name('admin.edit');
+        Route::put('task/{id}/update','update')->name('task.update');
         Route::delete('task/{id}/delete','delete')->name('admin.task.delete');
     });
 

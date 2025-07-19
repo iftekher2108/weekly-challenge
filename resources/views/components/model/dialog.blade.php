@@ -15,13 +15,13 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary">
                         <h1 class="modal-title fs-5" id="model-title text-white">{{ $title }}</h1>
-                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="reset" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         {{ $slot }}
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="Submit" class="btn btn-primary">{{ $btnLabel }}</button>
                     </div>
                 </div>
