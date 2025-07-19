@@ -39,7 +39,7 @@
 
         <!-- Picture Upload with Thumbnail -->
         <div class="mb-3">
-            <label for="picture" class="form-label">Category Picture</label>
+            <label for="picture" class="form-label">Picture</label>
             <input type="file" class="form-control input-picture @error('picture') is-invalid @enderror" id="picture"
                 name="picture" accept="image/*">
             <img id="preview-thumb" src="{{ asset('assets/backend/img/preview.png') }}" class="img-thumbnail mt-2" style="max-height: 120px;"
@@ -99,7 +99,7 @@
                                     <td>{{ $category->title }}</td>
                                     {{-- <td>{{ $category->description }}</td> --}}
                                     <td>
-                                        <a href="" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
+                                        <a href="{{ route('admin.category.edit',$category->id) }}" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
                                         <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>
                                         <form id="delete-form" action="{{ route('admin.category.delete',$category->id) }}" method="POST" >
                                             @csrf

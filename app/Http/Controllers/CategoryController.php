@@ -51,26 +51,18 @@ class CategoryController extends Controller
         return redirect()->route('admin.category')->with('success','Category added Successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Category $category)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
+    public function edit($id)
     {
-        //
+        $categories = Category::Where('user_id','=',Auth::user()->id)->with(['children','parent'])->get();
+        $category = Category::findOrFail($id);
+        return view('backend.catagory.edit',compact('categories','category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request,$id)
     {
         //
     }

@@ -14,7 +14,7 @@
         <div class="card">
 
             <div class="card-body">
-                <form action="{{ route('task.update',$task->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.task.update',$task->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <!-- Hidden User ID -->
@@ -41,7 +41,7 @@
 
                     <!-- Picture Upload with Thumbnail -->
                     <div class="mb-3">
-                        <label for="picture" class="form-label">Category Picture</label>
+                        <label for="picture" class="form-label">Picture</label>
                         <input type="file" class="form-control input-picture @error('picture') is-invalid @enderror"
                             id="picture" name="picture" accept="image/*">
                         <img id="preview-thumb" src="{{ asset('assets/backend/img/preview.png') }}"

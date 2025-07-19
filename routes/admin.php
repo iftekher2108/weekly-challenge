@@ -19,6 +19,8 @@ Route::middleware(['auth'])->group(function() {
     Route::controller(CategoryController::class)->group(function () {
         Route::get('/category', 'index')->name('admin.category');
         Route::post('category/store', 'store')->name('admin.category.store');
+        Route::get('category/{id}/edit','edit')->name('admin.category.edit');
+        Route::put('category/{id}/update')->name('admin.category.update');
         Route::delete('category/{id}/delete','delete')->name('admin.category.delete');
     });
 
@@ -31,8 +33,8 @@ Route::middleware(['auth'])->group(function() {
     Route::controller(TaskController::class)->group(function() {
         Route::get('task','index')->name('admin.task');
         Route::post('task/store','store')->name('admin.task.store');
-        Route::get('task/{id}/edit','edit')->name('admin.edit');
-        Route::put('task/{id}/update','update')->name('task.update');
+        Route::get('task/{id}/edit','edit')->name('admin.task.edit');
+        Route::put('task/{id}/update','update')->name('admin.task.update');
         Route::delete('task/{id}/delete','delete')->name('admin.task.delete');
     });
 
