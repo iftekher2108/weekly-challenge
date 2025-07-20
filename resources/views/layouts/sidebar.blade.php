@@ -32,67 +32,24 @@
                          <i class="fas fa-home"></i>
                          <p>Dashboard</p>
                      </a>
-                     {{-- <div class="collapse" id="dashboard">
-                         <ul class="nav nav-collapse">
-                             <li>
-                                 <a href="../demo1/index.html">
-                                     <span class="sub-item">Dashboard</span>
-                                 </a>
-                             </li>
-                         </ul>
-                     </div> --}}
-                 </li>
-                 {{-- <li class="nav-section">
-                     <span class="sidebar-mini-icon">
-                         <i class="fa fa-ellipsis-h"></i>
-                     </span>
-                     <h4 class="text-section">Module</h4>
-                 </li> --}}
 
-
-                 <li class="nav-item">
-                     <a data-bs-toggle="collapse" href="#base">
-                         <i class="fas fa-layer-group"></i>
-                         <p>Task Management</p>
-                         <span class="caret"></span>
-                     </a>
-                     <div class="collapse" id="base">
-                         <ul class="nav nav-collapse">
-                             <li @class([ 'active' => request()->routeIs('admin.category')])>
-                                 <a href="{{ route('admin.category') }}">
-                                     <span class="sub-item">Category</span>
-                                 </a>
-                             </li>
-
-                             <li @class([ 'active' => request()->routeIs('admin.task')])>
-                                 <a href="{{ route('admin.task')}}">
-                                     <span class="sub-item">Task</span>
-                                 </a>
-                             </li>
-
-                             {{-- <li>
-                                 <a href="components/gridsystem.html">
-                                     <span class="sub-item">Grid System</span>
-                                 </a>
-                             </li>
-                             <li>
-                                 <a href="components/panels.html">
-                                     <span class="sub-item">Panels</span>
-                                 </a>
-                             </li> --}}
-
-
-                         </ul>
-                     </div>
                  </li>
 
-                  <li class="nav-item">
-                     <a href="{{ route('admin.taskList') }}">
-                         <i class="fas fa-layer-group"></i>
-                         <p>Task List</p>
 
+                 <li @class(['nav-item', 'active' => request()->routeIs('admin.category')])>
+                     <a href="{{ route('admin.category') }}">
+                         <i class="fas fa-layer-group"></i>
+                         <span class="sub-item">Category</span>
                      </a>
                  </li>
+
+                 <li @class(['nav-item', 'active' => request()->routeIs('admin.task')])>
+                     <a href="{{ route('admin.task') }}">
+                         <i class="fas fa-layer-group"></i>
+                         <span class="sub-item">Task</span>
+                     </a>
+                 </li>
+
 
                  <li class="nav-item">
                      <a href="">

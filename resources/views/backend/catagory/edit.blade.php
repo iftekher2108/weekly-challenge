@@ -13,7 +13,8 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('admin.category.update', $category->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.category.update', $category->id) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -30,7 +31,7 @@
                             @foreach ($categories->whereNull('parent_id') as $parent)
                                 @include('backend.catagory.select-option', [
                                     'category' => $parent,
-                                    'selected' => old('parent_id',$category->parent_id),
+                                    'selected' => old('parent_id', $category->parent_id),
                                     'prefix' => '',
                                 ])
                             @endforeach
@@ -55,7 +56,7 @@
                     <!-- Title -->
                     <div class="mb-3">
                         <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-                        <input type="text" value="{{ old('title',$category->title) }}"
+                        <input type="text" value="{{ old('title', $category->title) }}"
                             class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                             required>
                         @error('title')
@@ -67,7 +68,7 @@
                     <div class="mb-3">
                         <label for="description"
                             class="form-label @error('description') is-invalid @enderror">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3">{{ old('description',$category->description) }}</textarea>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $category->description) }}</textarea>
                         @error('description')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -79,3 +80,16 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $('#preview-thumb').on('click', function() {
+            $('.input-picture').click()
+        })
+        $('.input-picture').on('change', function(e) {
+            var filePath = URL.createObjectURL(e.target.files[0]);
+            $('#preview-thumb').show('300');
+            $('#preview-thumb').attr('src', filePath); // Pass filePath as the src
+        });
+    </script>
+@endpush

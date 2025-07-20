@@ -20,8 +20,10 @@ return new class extends Migration
             $table->string('picture')->nullable();
             $table->string('title');
             $table->string('description')->nullable();
-            $table->integer('point')->default(5);
-
+            $table->integer('point')->default(0); // Task points
+            $table->enum('status', ['progress', 'completed'])->default('progress');
+            $table->integer('progress')->default(0); // Progress %
+            $table->date('due_date')->nullable(); //
             $table->timestamps();
         });
     }

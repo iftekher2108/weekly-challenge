@@ -43,7 +43,9 @@
                             <label for="picture" class="col-md-4 col-form-label text-md-end">Picture</label>
 
                             <div class="col-md-6">
-                                <input id="picture" type="file" class=" form-control @error('picture') is-invalid @enderror" name="picture" value="{{ old('picture') }}" required autofocus>
+                                <img id="preview-thumb" src="{{ asset('assets/backend/img/preview.png') }}" class="img-thumbnail my-2" style="max-height: 120px;"
+                alt="Preview">
+                                <input id="picture" type="file" class="input-picture form-control @error('picture') is-invalid @enderror" name="picture" value="{{ old('picture') }}" required autofocus>
 
                                 @error('picture')
                                     <span class="invalid-feedback" role="alert">
@@ -67,7 +69,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <label for="email" class="col-md-4 col-form-label text-md-end">Role</label>
 
                             <div class="col-md-6">
@@ -87,7 +89,7 @@
                                     </span>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="row mb-3">
                             <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
@@ -125,3 +127,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+     $('.input-picture').on('change', function(e) {
+            var filePath = URL.createObjectURL(e.target.files[0]);
+            $('#preview-thumb').show('300');
+            $('#preview-thumb').attr('src', filePath); // Pass filePath as the src
+        });
+</script>
+@endpush

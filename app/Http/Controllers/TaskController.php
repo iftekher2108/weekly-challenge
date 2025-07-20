@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\task;
 use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -16,19 +17,39 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $query = task::query();
+           $weeklyTasksProgress = Category::with(['children.task','task'=> function($query)  {
+               $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status','=','progress')
+                ->orderBy('progress', 'desc');
+           }])
+           ->where('user_id',Auth::user()->id)
+           ->get();
 
-        $categories = Category::Where('user_id', '=', Auth::user()->id)->with(['children', 'parent'])->get();
+           $weeklyTasksProgress->transform(function($cat) {
+            $tasks = $cat->task;
+            $cat->overall_progress = $tasks->count()
+                ? round($tasks->sum('progress') / $tasks->count())
+                : 0;
+            return $cat;
+        });
 
+        $categories = Category::Where('user_id',  '=', Auth::user()->id)->with(['children', 'parent'])->get();
 
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where('title', 'like', "%" . $search . "%");
-        }
-        $tasks = $query->paginate(35);
-        return view('backend.task.index', compact('tasks', 'categories'));
+        return view('backend.task.index',compact( 'weeklyTasksProgress', 'categories'));
     }
 
+
+    public function completed() {
+
+         $weeklyTasksCompleted = Category::with(relations: ['children.task','task'=> function($query)  {
+               $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status','=','completed')
+                ->orderBy('progress', 'desc');
+           }])
+           ->where('user_id',Auth::user()->id)
+           ->get();
+        return view('backend.task.completed',compact('weeklyTasksCompleted'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -40,7 +61,8 @@ class TaskController extends Controller
             'user_id' => 'required',
             'picture' => 'image|mimes:png,jpg|nullable|max:2028',
             'title' => 'string|required|max:30',
-            'description' => 'string|nullable|max:250'
+            'description' => 'string|nullable|max:250',
+            'due_date' => 'required',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -57,6 +79,7 @@ class TaskController extends Controller
                 'picture' => $picture,
                 'title' => $request->title,
                 'description' => $request->description,
+                'due_date' => Carbon::parse($request->due_date)->format('Y-m-d'),
             ]);
         });
 
@@ -82,7 +105,8 @@ class TaskController extends Controller
             'user_id' => 'required',
             'picture' => 'image|mimes:png,jpg|nullable|max:2028',
             'title' => 'string|required|max:30',
-            'description' => 'string|nullable|max:250'
+            'description' => 'string|nullable|max:250',
+            'due_date' => 'required',
         ]);
         $task = task::findOrFail($id);
         DB::transaction(function () use ($request, $task) {
@@ -103,6 +127,8 @@ class TaskController extends Controller
                 'picture' => $picture,
                 'title' => $request->title,
                 'description' => $request->description,
+                'due_date' => Carbon::parse($request->due_date)->format('Y-m-d'),
+
             ]);
         });
 

@@ -17,5 +17,9 @@ class Category extends Model
         return $this->belongsTo(Category::class,'parent_id','id');
     }
 
+    public function task() {
+        return $this->hasMany(task::class,'cat_id','id');
+    }
+
 
 }

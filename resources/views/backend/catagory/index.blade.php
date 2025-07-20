@@ -13,7 +13,7 @@
     </div>
 
 
-    <x-model.dialog title="Add Category" route="admin.category.store" target="categoryModel" btnLabel="Add Category">
+    <x-model.dialog title="Add Category" route="{{ route('admin.category.store') }}" target="categoryModel" btnLabel="Add Category">
 
         <!-- Hidden User ID -->
         <input type="hidden" name="user_id" value="{{ auth()->id() }}">

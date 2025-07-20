@@ -106,6 +106,20 @@
         </nav>
 
         <main class="py-4">
+
+              @if ($errors->any())
+                        <div class="mb-3">
+                            @foreach ($errors->all() as $error)
+                                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                    {{ $error }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    @endif
+
             @yield('content')
         </main>
     </div>

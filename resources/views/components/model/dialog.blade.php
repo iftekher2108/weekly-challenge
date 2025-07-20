@@ -10,7 +10,7 @@
     <div class="modal fade" id="{{ $target }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="model-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
-            <form action="{{ route($route) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ $route }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header bg-primary">
