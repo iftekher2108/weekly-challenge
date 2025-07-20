@@ -17,15 +17,19 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-           $weeklyTasksProgress = Category::with(['children.task','task'=> function($query)  {
-               $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status','=','progress')
+        $weeklyTasksProgress = Category::with(['children.task' => function ($query) {
+            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status', '=', 'progress')
                 ->orderBy('progress', 'desc');
-           }])
-           ->where('user_id',Auth::user()->id)
-           ->get();
+        }, 'task' => function ($query) {
+            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status', '=', 'progress')
+                ->orderBy('progress', 'desc');
+        }])
+            ->where('user_id', Auth::user()->id)
+            ->get();
 
-           $weeklyTasksProgress->transform(function($cat) {
+        $weeklyTasksProgress->transform(function ($cat) {
             $tasks = $cat->task;
             $cat->overall_progress = $tasks->count()
                 ? round($tasks->sum('progress') / $tasks->count())
@@ -35,20 +39,25 @@ class TaskController extends Controller
 
         $categories = Category::Where('user_id',  '=', Auth::user()->id)->with(['children', 'parent'])->get();
 
-        return view('backend.task.index',compact( 'weeklyTasksProgress', 'categories'));
+        return view('backend.task.index', compact('weeklyTasksProgress', 'categories'));
     }
 
 
-    public function completed() {
+    public function completed()
+    {
 
-         $weeklyTasksCompleted = Category::with(relations: ['children.task','task'=> function($query)  {
-               $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status','=','completed')
+        $weeklyTasksCompleted = Category::with(relations: ['children.task' => function ($query) {
+            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status', '=', 'progress')
                 ->orderBy('progress', 'desc');
-           }])
-           ->where('user_id',Auth::user()->id)
-           ->get();
-        return view('backend.task.completed',compact('weeklyTasksCompleted'));
+        }, 'task' => function ($query) {
+            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+                ->where('status', '=', 'completed')
+                ->orderBy('progress', 'desc');
+        }])
+            ->where('user_id', Auth::user()->id)
+            ->get();
+        return view('backend.task.completed', compact('weeklyTasksCompleted'));
     }
 
     /**

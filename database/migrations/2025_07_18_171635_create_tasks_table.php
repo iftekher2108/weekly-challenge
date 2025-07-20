@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('description')->nullable();
             $table->integer('point')->default(0); // Task points
-            $table->enum('status', ['progress', 'completed'])->default('progress');
+            $table->enum('status', ['progress', 'not_completed' ,'completed'])->default('progress');
             $table->integer('progress')->default(0); // Progress %
             $table->date('due_date')->nullable(); //
             $table->timestamps();

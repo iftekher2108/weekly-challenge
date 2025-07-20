@@ -16,4 +16,14 @@ class task extends Model
         return $this->belongsTo(Category::class,'cat_id','id');
     }
 
+    
+    public function scopeOverdueLastWeek($query)
+{
+    return $query->where('status', 'progress')
+        ->whereBetween('due_date', [
+            now()->subWeek()->startOfWeek(),
+            now()->subWeek()->endOfWeek()
+        ]);
+}
+
 }
