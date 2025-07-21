@@ -17,8 +17,8 @@
         }
 
         .card:hover {
-            background: #22974552;
-            transform: translateY(-10px);
+            background: rgba(0, 0, 0, 0.02);
+            transform: translateY(-5px);
             box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
         }
 
@@ -31,7 +31,7 @@
 @section('content')
     <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
         <div>
-            <h3 class="fw-bold mb-3">Task</h3>
+            <h3 class="fw-bold mb-3">Weekly Tasks</h3>
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
         <div class="ms-md-auto py-2 py-md-0">
@@ -143,88 +143,11 @@
 
     </x-model.dialog>
 
-    <div class="mb-4">
-        <span class="fs-2 py-2 px-3 rounded text-white shadow fw-bold bg-primary">Weekly Tasks Progress</span>
+
+    <div class="row g-1">
+        @include('backend.task.recartion-cat', ['categories' => $weeklyTasksProgress, 'prefix' => 'weekly-'])
     </div>
 
-    @foreach ($weeklyTasksProgress as $category)
-        <div class="mb-4">
-            <div class="d-flex gap-3 mb-2">
-                <img src="{{ asset('storage/category/' . $category->picture) }}" class="img-thumbnail"
-                    style='height:50px; width:50px'>
-                <h4 class="fw-bold text-primary border-bottom pb-2 mb-3">
-                    {{ $category->title }}
-                </h4>
-            </div>
-  {{-- Overall Progress Bar --}}
-    <div class="progress mb-3" style="height: 8px;">
-      <div class="progress-bar bg-primary"
-           role="progressbar"
-           style="width: {{ $category->overall_progress }}%;"
-           aria-valuenow="{{ $category->overall_progress }}"
-           aria-valuemin="0"
-           aria-valuemax="100">
-      </div>
-    </div>
-    <small class="d-block mb-4">{{ $category->overall_progress }}%</small>
-
-
-            <div class="row g-1">
-                @foreach ($category->task as $task)
-                    <div class="col-md-4">
-                        <div
-                            class="card  mb-3 border-start border-4
-                            @if ($task->progress == 100) border-success
-                            @elseif($task->progress >= 50) border-warning
-                            @else border-danger @endif">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="card-title mb-1 fw-semibold">{{ $task->title }}</h6>
-                                    <div class="d-flex gap-2">
-                                        <button data-bs-target="#model" data-bs-toggle="modal"
-                                            data-id="{{ $task->id }}" class="btn-progress btn btn-success"><i
-                                                class="fas fa-arrows-alt-h"></i></button>
-                                        <a href="#" class="delete-btn btn btn-danger"><i
-                                                class="fas fa-trash-alt"></i></a>
-                                        <form id="delete-form" action="{{ route('admin.task.delete', $task->id) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    </div>
-
-                                </div>
-
-                                <p class="card-text small my-2 text-muted">{{ $task->description }}</p>
-
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar data-progress
-                                        @if ($task->progress == 100) bg-success
-                                        @elseif($task->progress >= 60) bg-info
-                                        @elseif($task->progress >= 50) bg-warning
-                                        @elseif($task->progress <= 20) bg-danger
-                                        @else bg-danger @endif"
-                                        data-progress="{{ $task->progress }}" role="progressbar"
-                                        style="width: {{ $task->progress }}%" aria-valuenow="{{ $task->progress }}"
-                                        aria-valuemin="0" aria-valuemax="100">
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <span>Status: {{ ucfirst($task->status) }}</span>
-                                    <span>Progress: {{ $task->progress }}%</span>
-                                    <span>Due: {{ \Carbon\Carbon::parse($task->due_date)->format('M d') }}</span>
-                                </div>
-
-
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-        </div>
-    @endforeach
 
 @endsection
 
