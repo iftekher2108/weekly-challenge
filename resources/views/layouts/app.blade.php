@@ -82,7 +82,7 @@
                     <!-- End Logo Header -->
                 </div>
                 <!-- Navbar Header -->
-                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom" data-background-color="dark" >
                     <div class="container-fluid">
 
                         {{-- <nav
@@ -343,7 +343,7 @@
                                                     <h4>{{ Auth::user()->name }}</h4>
                                                     <p class="text-muted">{{ Auth::user()->email }}</p>
                                                     <a href="{{ route('admin.profile') }}"
-                                                        class="btn btn-xs btn-secondary btn-sm">View
+                                                        class="btn btn-xs btn-primary px-5 btn-sm">View
                                                         Profile</a>
                                                 </div>
                                             </div>

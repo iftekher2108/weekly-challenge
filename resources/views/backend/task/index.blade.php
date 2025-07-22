@@ -7,19 +7,20 @@
             position: relative;
             border-radius: 0.75rem;
             transition: all 0.3s ease;
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
         }
 
-        .position-btn {
+        /* .position-btn {
             position: absolute;
             top: 5%;
             right: 2%;
             z-index: 10 !important;
-        }
+        } */
 
-        .card:hover {
-            background: rgba(0, 0, 0, 0.02);
-            transform: translateY(-5px);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
+        .task-card:hover {
+            background: rgba(131, 179, 255, 0.801);
+            transform: translateY(-3px);
+
         }
 
         .progress-bar {
@@ -35,7 +36,7 @@
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
         <div class="ms-md-auto py-2 py-md-0">
-            <a href="{{ route('admin.task.completed') }}" class="btn btn-label-info btn-round me-2">Task Completed</a>
+            {{-- <a href="{{ route('admin.task.completed') }}" class="btn btn-label-info btn-round me-2">Task Completed</a> --}}
             <x-model.m-button label='Add Task' target="categoryModel" />
         </div>
     </div>
@@ -106,12 +107,7 @@
     </x-model.dialog>
 
 
-    <x-model.dialog title="Progress" route="{{ route('admin.category.store') }}" target="model" btnLabel="Task Progress">
-
-        <!-- Hidden User ID -->
-        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-
-        <input type="hidden" id="data_id" name="id" value="">
+    <x-model.dialog title="Progress" method_type="PUT" route="#" target="model" btnLabel="Task Progress">
 
 
         {{-- <!-- Title -->
@@ -127,17 +123,17 @@
         <div class="mb-3">
             <label for="progressRange" class="form-label">Progress: <span id="progressValue">0%</span></label>
             <input type="range" class="form-range" min="0" max="100" step="1" id="progressRange"
-                name="progress" value="50">
+                name="progress" >
         </div>
 
         <!-- Description -->
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label for="description" class="form-label @error('description') is-invalid @enderror">Description</label>
             <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
             @error('description')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
-        </div>
+        </div> --}}
 
 
 
@@ -145,7 +141,7 @@
 
 
     <div class="row g-1">
-        @include('backend.task.recartion-cat', ['categories' => $weeklyTasksProgress, 'prefix' => 'weekly-'])
+        @include('backend.task.recartion-cat', ['categories' => $weeklyTasks, 'prefix' => 'weekly-'])
     </div>
 
 
@@ -207,18 +203,16 @@
 
 
 
-
         function progressChange() {
             $('#progressValue').text(`${$('.form-range').val()}%`)
         }
-
         $(".form-range").on('input', progressChange);
-
         $('.btn-progress').on('click', function() {
-            $('#data_id').val($(this).data('id'));
-            //    $('.modal-title').text($(this).closest('.card-title').text());
-            $('.form-range').val($('.data-progress').data('progress'))
+            $('.form-range').val($(this).data('progress'))
             progressChange()
+            const baseRoute = $(this).data('url');
+            $('#model-form').attr('action', baseRoute);
+            //    $('.modal-title').text($(this).closest('.card-title').text());
 
         })
     </script>

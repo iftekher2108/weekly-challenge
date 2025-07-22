@@ -17,19 +17,17 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $weeklyTasksProgress = Category::with(['children.task' => function ($query) {
+        $weeklyTasks = Category::with(['children.task' => function ($query) {
             $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status', '=', 'progress')
                 ->orderBy('progress', 'desc');
         }, 'task' => function ($query) {
             $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status', '=', 'progress')
                 ->orderBy('progress', 'desc');
         }])
             ->where('user_id', Auth::user()->id)
             ->get();
 
-        $weeklyTasksProgress->transform(function ($cat) {
+        $weeklyTasks->transform(function ($cat) {
             $tasks = $cat->task;
             $cat->overall_progress = $tasks->count()
                 ? round($tasks->sum('progress') / $tasks->count())
@@ -39,26 +37,26 @@ class TaskController extends Controller
 
         $categories = Category::Where('user_id',  '=', Auth::user()->id)->with(['children', 'parent'])->get();
 
-        return view('backend.task.index', compact('weeklyTasksProgress', 'categories'));
+        return view('backend.task.index', compact('weeklyTasks', 'categories'));
     }
 
 
-    public function completed()
-    {
+    // public function completed()
+    // {
 
-        $weeklyTasksCompleted = Category::with(relations: ['children.task' => function ($query) {
-            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status', '=', 'progress')
-                ->orderBy('progress', 'desc');
-        }, 'task' => function ($query) {
-            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
-                ->where('status', '=', 'completed')
-                ->orderBy('progress', 'desc');
-        }])
-            ->where('user_id', Auth::user()->id)
-            ->get();
-        return view('backend.task.completed', compact('weeklyTasksCompleted'));
-    }
+    //     $weeklyTasksCompleted = Category::with(relations: ['children.task' => function ($query) {
+    //         $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+    //             ->where('status', '=', 'progress')
+    //             ->orderBy('progress', 'desc');
+    //     }, 'task' => function ($query) {
+    //         $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+    //             ->where('status', '=', 'completed')
+    //             ->orderBy('progress', 'desc');
+    //     }])
+    //         ->where('user_id', Auth::user()->id)
+    //         ->get();
+    //     return view('backend.task.completed', compact('weeklyTasksCompleted'));
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -144,9 +142,29 @@ class TaskController extends Controller
         return redirect()->route('admin.task')->with('success', value: 'Task update Successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+    public function taskProgress(Request $request, $id)
+    {
+        $task = task::findOrFail($id);
+        $request->validate([
+            'progress' => 'required|integer|min:0|max:100',
+        ]);
+
+        if ($request->progress == 100) {
+            $task->update(['status' => 'completed']);
+        } else {
+            $task->update(['status' => 'progress']);
+        }
+
+        if ($request->has('due_date')) {
+            $task->update(['due_date' => Carbon::parse($request->due_date)->format('Y-m-d')]);
+        }
+
+        $task->update(['progress' => $request->progress]);
+
+        return redirect()->route('admin.task')->with('success', 'Task progress updated Successfully');
+    }
+
     public function delete($id)
     {
         $task = task::findOrFail($id);

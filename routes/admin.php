@@ -28,8 +28,9 @@ Route::middleware(['auth'])->group(function() {
         Route::post('task/store','store')->name('admin.task.store');
         Route::get('task/{id}/edit','edit')->name('admin.task.edit');
         Route::put('task/{id}/update','update')->name('admin.task.update');
+        Route::put('task/{id}/progress','taskProgress')->name('admin.task.progress');
         Route::delete('task/{id}/delete','delete')->name('admin.task.delete');
-        Route::get('task/completed','completed')->name('admin.task.completed');
+        // Route::get('task/completed','completed')->name('admin.task.completed');
     });
 
 });

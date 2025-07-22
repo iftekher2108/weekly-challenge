@@ -21,7 +21,7 @@
                         @if ($category->overall_progress == 100) bg-success
                         @elseif($category->overall_progress >= 65) bg-primary
                         @elseif($category->overall_progress > 45) bg-info
-                        @elseif($category->overall_progress <= 45) bg-warning
+                        @elseif($category->overall_progress > 10) bg-warning
                         @elseif($category->overall_progress <= 10) bg-danger
                         @else bg-danger @endif"
                        role="progressbar" style="width: {{ $category->overall_progress }}%;"
@@ -35,39 +35,47 @@
                @foreach ($category->task as $task)
                    <div class="col-md-12">
                        <div
-                           class="card  mb-3 border-start border-4
+                           class="card task-card mb-2 border-start border-4
                             @if ($task->progress == 100) border-success
                             @elseif($task->progress >= 65) border-primary
                             @elseif($task->progress > 45) border-info
-                            @elseif($task->progress <= 45) border-warning
+                            @elseif($task->progress > 10) border-warning
                             @elseif($task->progress <= 10) border-danger
                             @else border-danger @endif">
                            <div class="card-body">
                                <div class="d-flex justify-content-between">
                                    <h6 class="card-title mb-1 fw-semibold">{{ $task->title }}</h6>
-                                   <div class="d-flex gap-2">
-                                       <button data-bs-target="#model" data-bs-toggle="modal"
-                                           data-id="{{ $task->id }}" class="btn-progress btn btn-success"><i
-                                               class="fas fa-arrows-alt-h"></i></button>
-                                       <a href="#" class="delete-btn btn btn-danger"><i
-                                               class="fas fa-trash-alt"></i></a>
-                                       <form id="delete-form" action="{{ route('admin.task.delete', $task->id) }}"
-                                           method="POST">
-                                           @csrf
-                                           @method('DELETE')
-                                       </form>
-                                   </div>
+
+                                   @if ($task->status == 'completed')
+                                       <span class="badge bg-success">Completed</span>
+                                   @elseif ($task->status == 'progress')
+                                       <div class="d-flex gap-2">
+                                           <button data-bs-target="#model" data-bs-toggle="modal"
+                                               data-progress="{{ $task->progress }}"
+                                               data-url="{{ route('admin.task.progress', $task->id) }}"
+                                               class="btn-progress btn btn-success"><i
+                                                   class="fas fa-arrows-alt-h"></i></button>
+                                           <a href="#" class="delete-btn btn btn-danger"><i
+                                                   class="fas fa-trash-alt"></i></a>
+                                           <form id="delete-form" action="{{ route('admin.task.delete', $task->id) }}"
+                                               method="POST">
+                                               @csrf
+                                               @method('DELETE')
+                                           </form>
+                                       </div>
+                                   @endif
+
 
                                </div>
 
                                <p class="card-text small my-2 text-muted">{{ $task->description }}</p>
 
-                               <div class="progress mb-2" style="height: 8px;">
+                               <div class="progress mb-2" style="height: 10px;">
                                    <div class="progress-bar data-progress
-                                        @if ($task->progress == 100) border-success
+                                        @if ($task->progress == 100) bg-success
                                         @elseif($task->progress >= 65) bg-primary
                                         @elseif($task->progress > 45) bg-info
-                                        @elseif($task->progress <= 45) bg-warning
+                                        @elseif($task->progress > 10) bg-warning
                                         @elseif($task->progress <= 10) bg-danger
                                         @else bg-danger @endif"
                                        data-progress="{{ $task->progress }}" role="progressbar"

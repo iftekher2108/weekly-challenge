@@ -22,8 +22,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         task::overdueLastWeek()->update([
-        'status' => 'not_completed',
+        'status' => 'progress',
         ]);
+
+
+
        Paginator::useBootstrapFive();
     }
 }

@@ -3,24 +3,27 @@
 
 @push('styles')
     <style>
-        .card {
+           .card {
             position: relative;
             border-radius: 0.75rem;
             transition: all 0.3s ease;
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
         }
 
-        .position-btn {
+        /* .position-btn {
             position: absolute;
             top: 5%;
             right: 2%;
             z-index: 10 !important;
+        } */
+
+        .task-card:hover {
+            /* background: rgba(131, 179, 255, 0.801); */
+            background: #22974552;
+            transform: translateY(-3px);
+
         }
 
-        .card:hover {
-            background: #22974552;
-            transform: translateY(-10px);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
-        }
 
         .progress-bar {
             transition: width 0.6s ease;
@@ -44,7 +47,11 @@
         <span class="fs-2 py-2 px-3 rounded text-white shadow fw-bold bg-primary">Weekly Tasks Completed</span>
     </div>
 
-    @foreach ($weeklyTasksCompleted as  $category)
+    <div class="row g-1">
+        @include('backend.task.recartion-cat', ['categories' => $weeklyTasksCompleted, 'prefix' => 'weekly-'])
+    </div>
+
+    {{-- @foreach ($weeklyTasksCompleted as  $category)
         <div class="mb-4">
            <div class="d-flex gap-3 mb-2">
                 <img src="{{ asset('storage/category/' . $category->picture) }}" class="img-thumbnail"
@@ -92,7 +99,7 @@
             </div>
 
         </div>
-    @endforeach
+    @endforeach --}}
 
 @endsection
 

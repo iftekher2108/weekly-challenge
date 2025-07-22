@@ -9,6 +9,7 @@ $(window).resize(function () {
 getCheckmark();
 
 $(".changeBodyBackgroundFullColor").on("click", function () {
+
   if ($(this).attr("data-color") == "default") {
     $("body").removeAttr("data-background-full");
   } else {
@@ -21,11 +22,47 @@ $(".changeBodyBackgroundFullColor").on("click", function () {
   getCheckmark();
 });
 
+$(document).ready(function () {
+    var logoHeadColor = localStorage.getItem("logoHeadColor") ?? 'dark';
+   var headerColor = localStorage.getItem("headerColor") ?? 'dark';
+   var SideColor = localStorage.getItem("SideColor") ?? 'dark';
+
+   if(logoHeadColor) {
+        $(".logo-header").attr("data-background-color", logoHeadColor);
+        $(".changeLogoHeaderColor").removeClass("selected");
+        $(".changeLogoHeaderColor[data-color='" + logoHeadColor + "']").addClass("selected");
+        customCheckColor();
+   }
+
+   if (headerColor) {
+     $(".main-header .navbar-header").attr("data-background-color", headerColor);
+     $(".changeTopBarColor").removeClass("selected");
+    $(".changeTopBarColor[data-color='" + headerColor + "']").addClass("selected");
+     customCheckColor();
+   } else {
+     $(".main-header .navbar-header").removeAttr("data-background-color");
+   }
+
+   if (SideColor) {
+     $(".sidebar").attr("data-background-color", SideColor);
+     $(".changeSideBarColor").removeClass("selected");
+     $(".changeSideBarColor[data-color='" + SideColor + "']").addClass("selected");
+     customCheckColor();
+   } else {
+     $(".sidebar").removeAttr("data-background-color");
+    //  $(".changeSideBarColor").removeClass("selected");
+   }
+
+
+});
+
+
 $(".changeLogoHeaderColor").on("click", function () {
   if ($(this).attr("data-color") == "default") {
     $(".logo-header").removeAttr("data-background-color");
   } else {
     $(".logo-header").attr("data-background-color", $(this).attr("data-color"));
+    localStorage.setItem("logoHeadColor", $(this).attr("data-color"));
   }
 
   $(this).parent().find(".changeLogoHeaderColor").removeClass("selected");
@@ -37,9 +74,11 @@ $(".changeLogoHeaderColor").on("click", function () {
 
 $(".changeTopBarColor").on("click", function () {
   if ($(this).attr("data-color") == "default") {
+    // $(".main-header .navbar-header").attr("data-background-color", 'dark');
     $(".main-header .navbar-header").removeAttr("data-background-color");
   } else {
     $(".main-header .navbar-header").attr("data-background-color", $(this).attr("data-color"));
+    localStorage.setItem("headerColor", $(this).attr("data-color"));
   }
 
   $(this).parent().find(".changeTopBarColor").removeClass("selected");
@@ -53,6 +92,7 @@ $(".changeSideBarColor").on("click", function () {
     $(".sidebar").removeAttr("data-background-color");
   } else {
     $(".sidebar").attr("data-background-color", $(this).attr("data-color"));
+    localStorage.setItem("SideColor", $(this).attr("data-color"));
   }
 
   $(this).parent().find(".changeSideBarColor").removeClass("selected");
@@ -71,11 +111,11 @@ $(".changeBackgroundColor").on("click", function () {
 
 function customCheckColor() {
   var logoHeader = $(".logo-header").attr("data-background-color");
-  if (logoHeader !== "white") {
-    $(".logo-header .navbar-brand").attr("src", "assets/img/kaiadmin/logo_light.svg");
-  } else {
-    $(".logo-header .navbar-brand").attr("src", "assets/img/kaiadmin/logo_dark.svg");
-  }
+//   if (logoHeader !== "white") {
+//     $(".logo-header .navbar-brand").attr("src", "assets/img/kaiadmin/logo_light.svg");
+//   } else {
+//     $(".logo-header .navbar-brand").attr("src", "assets/img/kaiadmin/logo_dark.svg");
+//   }
 }
 
 var toggle_customSidebar = false,

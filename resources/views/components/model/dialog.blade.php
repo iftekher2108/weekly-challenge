@@ -2,16 +2,19 @@
         'title' => null,
         'route' => 'admin.dashboard',
         'target' => "model",
-        'btnLabel' => 'Submit'
-
+        'btnLabel' => 'Submit',
+        'method_type' => 'POST',
     ])
 
     <!-- Modal -->
     <div class="modal fade" id="{{ $target }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="model-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
-            <form action="{{ $route }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ $route }}" id="{{ $target }}-form" method="POST" enctype="multipart/form-data">
                 @csrf
+                @if ($method_type == 'PUT')
+                     @method('PUT')
+                @endif
                 <div class="modal-content">
                     <div class="modal-header bg-primary">
                         <h1 class="modal-title fs-5" id="model-title text-white">{{ $title }}</h1>
