@@ -151,7 +151,10 @@
     <script>
         // from
 
-        // $('#due_date').val(new Date().toISOString().split('T')[0])
+        $(document).ready(function() {
+            $('#due_date').val(new Date().toISOString().split('T')[0])
+        })
+
 
         $('#preview-thumb').on('click', function() {
             $('.input-picture').click()

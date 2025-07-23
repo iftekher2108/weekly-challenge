@@ -50,14 +50,12 @@
                      </a>
                  </li>
 
-
-                 <li class="nav-item">
-                     <a href="">
-                         <i class="fas fa-layer-group"></i>
-                         <p>Task Report</p>
+                 <li @class(['nav-item', 'active' => request()->routeIs('admin.report')])>
+                     <a href="{{ route('admin.report') }}">
+                         <i class="fas fa-chart-bar"></i>
+                         <span class="sub-item">Reports</span>
                      </a>
                  </li>
-
 
 
                  {{-- <li class="nav-item">

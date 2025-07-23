@@ -335,13 +335,13 @@
                                     <div class="dropdown-user-scroll scrollbar-outer">
                                         <li>
                                             <div class="user-box">
-                                                <div class="avatar-lg">
+                                                {{-- <div class="avatar-lg">
                                                     <img src="{{ Auth::user()->picture ? asset('storage/user/' . Auth::user()->picture) : asset('assets/backend/img/profile.jpg') }}"
-                                                        alt="image profile" class="avatar-img rounded" />
-                                                </div>
+                                                        alt="image profile" style="height:20px; width:20px;" class="avatar-img" />
+                                                </div> --}}
                                                 <div class="u-text">
-                                                    <h4>{{ Auth::user()->name }}</h4>
-                                                    <p class="text-muted">{{ Auth::user()->email }}</p>
+                                                    <h4 class="dropdown-item">{{ Auth::user()->name }}</h4>
+                                                    <p class="dropdown-item">{{ Auth::user()->email }}</p>
                                                     <a href="{{ route('admin.profile') }}"
                                                         class="btn btn-xs btn-primary px-5 btn-sm">View
                                                         Profile</a>
