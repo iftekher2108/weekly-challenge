@@ -12,47 +12,68 @@
         </div> --}}
     </div>
 
-    
+
     <div class="row">
-        <div class="col-sm-6 col-md-3">
+
+        <div class="col-sm-6 col-md-4">
             <div class="card card-stats card-round">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-icon">
-                            <div class="icon-big text-center icon-primary bubble-shadow-small">
-                                <i class="fas fa-users"></i>
+                            <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="far fa-check-circle"></i>
                             </div>
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Visitors</p>
-                                <h4 class="card-title">1,294</h4>
+                                <p class="card-category">Total Completed</p>
+                                <h4 class="card-title">{{ $totalCompleted }}</h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-3">
+
+        <div class="col-sm-6 col-md-4">
             <div class="card card-stats card-round">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-icon">
-                            <div class="icon-big text-center icon-info bubble-shadow-small">
-                                <i class="fas fa-user-check"></i>
+                            <div class="icon-big text-center icon-warning bubble-shadow-small">
+                                <i class="fas fa-spinner"></i>
                             </div>
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Subscribers</p>
-                                <h4 class="card-title">1303</h4>
+                                <p class="card-category">In Progress</p>
+                                <h4 class="card-title">{{ $totalProgress }}</h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-4">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-danger bubble-shadow-small">
+                                <i class="fas fa-not-equal"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">Total Incompleted</p>
+                                <h4 class="card-title">{{ $totalIncompleted }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-sm-6 col-md-3">
             <div class="card card-stats card-round">
                 <div class="card-body">
                     <div class="row align-items-center">
@@ -70,26 +91,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-secondary bubble-shadow-small">
-                                <i class="far fa-check-circle"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Order</p>
-                                <h4 class="card-title">576</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div> --}}
+
     </div>
 
 
@@ -97,7 +100,7 @@
 
     {{-- =========================== User Column Chart ======================================== --}}
 
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
@@ -110,7 +113,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- =========================== User Column Chart ======================================== --}}
 
@@ -122,7 +125,7 @@
 
     <div class="row g-2">
 
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Pie Chart</div>
@@ -130,19 +133,6 @@
                 <div class="card-body">
                     <div class="chart-container">
                         <canvas id="pieChart" style="width: 50%; height: 50%"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Doughnut Chart</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="doughnutChart" style="width: 50%; height: 50%"></canvas>
                     </div>
                 </div>
             </div>
@@ -601,11 +591,11 @@
             type: "pie",
             data: {
                 datasets: [{
-                    data: [50, 35, 15],
-                    backgroundColor: ["#1d7af3", "#f3545d", "#fdaf4b"],
+                    data: [{{ $totalCompleted }}, {{ $totalProgress }}, {{ $totalIncompleted }}],
+                    backgroundColor: ["#1d7af3","#fdaf4b", "#f3545d" ],
                     borderWidth: 0,
                 }, ],
-                labels: ["New Visitors", "Subscribers", "Active Users"],
+                labels: ["Total Completed", "In Progress", "In Completed"],
             },
             options: {
                 responsive: true,
@@ -637,112 +627,81 @@
         });
         //   PIE CHART END
 
-        //  DOUGHNUT CHART START
-        var doughnutChart = document.getElementById("doughnutChart").getContext("2d");
-        var myDoughnutChart = new Chart(doughnutChart, {
-        type: "doughnut",
-        data: {
-          datasets: [
-            {
-              data: [10, 20, 30],
-              backgroundColor: ["#f3545d", "#fdaf4b", "#1d7af3"],
-            },
-          ],
-
-          labels: ["Red", "Yellow", "Blue"],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          legend: {
-            position: "bottom",
-          },
-          layout: {
-            padding: {
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: 20,
-            },
-          },
-        },
-      });
-        //  DOUGHNUT CHART END
 
         //  multiple Bar CHART START
-        var multipleBarChart = document.getElementById("multipleBarChart").getContext("2d");
+    //     var multipleBarChart = document.getElementById("multipleBarChart").getContext("2d");
 
-        var myMultipleBarChart = new Chart(multipleBarChart, {
-        type: "bar",
-        data: {
-          labels: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ],
-          datasets: [
-            {
-              label: "First time visitors",
-              backgroundColor: "#59d05d",
-              borderColor: "#59d05d",
-              data: [95, 100, 112, 101, 144, 159, 178, 156, 188, 190, 210, 245],
-            },
-            {
-              label: "Visitors",
-              backgroundColor: "#fdaf4b",
-              borderColor: "#fdaf4b",
-              data: [
-                145, 256, 244, 233, 210, 279, 287, 253, 287, 299, 312, 356,
-              ],
-            },
-            {
-              label: "Pageview",
-              backgroundColor: "#177dff",
-              borderColor: "#177dff",
-              data: [
-                185, 279, 273, 287, 234, 312, 322, 286, 301, 320, 346, 399,
-              ],
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          legend: {
-            position: "bottom",
-          },
-          title: {
-            display: true,
-            text: "Traffic Stats",
-          },
-          tooltips: {
-            mode: "index",
-            intersect: false,
-          },
-          responsive: true,
-          scales: {
-            xAxes: [
-              {
-                stacked: true,
-              },
-            ],
-            yAxes: [
-              {
-                stacked: true,
-              },
-            ],
-          },
-        },
-      });
+    //     var myMultipleBarChart = new Chart(multipleBarChart, {
+    //     type: "bar",
+    //     data: {
+    //       labels: [
+    //         "Jan",
+    //         "Feb",
+    //         "Mar",
+    //         "Apr",
+    //         "May",
+    //         "Jun",
+    //         "Jul",
+    //         "Aug",
+    //         "Sep",
+    //         "Oct",
+    //         "Nov",
+    //         "Dec",
+    //       ],
+    //       datasets: [
+    //         {
+    //           label: "First time visitors",
+    //           backgroundColor: "#59d05d",
+    //           borderColor: "#59d05d",
+    //           data: [95, 100, 112, 101, 144, 159, 178, 156, 188, 190, 210, 245],
+    //         },
+    //         {
+    //           label: "Visitors",
+    //           backgroundColor: "#fdaf4b",
+    //           borderColor: "#fdaf4b",
+    //           data: [
+    //             145, 256, 244, 233, 210, 279, 287, 253, 287, 299, 312, 356,
+    //           ],
+    //         },
+    //         {
+    //           label: "Pageview",
+    //           backgroundColor: "#177dff",
+    //           borderColor: "#177dff",
+    //           data: [
+    //             185, 279, 273, 287, 234, 312, 322, 286, 301, 320, 346, 399,
+    //           ],
+    //         },
+    //       ],
+    //     },
+    //     options: {
+    //       responsive: true,
+    //       maintainAspectRatio: false,
+    //       legend: {
+    //         position: "bottom",
+    //       },
+    //       title: {
+    //         display: true,
+    //         text: "Traffic Stats",
+    //       },
+    //       tooltips: {
+    //         mode: "index",
+    //         intersect: false,
+    //       },
+    //       responsive: true,
+    //       scales: {
+    //         xAxes: [
+    //           {
+    //             stacked: true,
+    //           },
+    //         ],
+    //         yAxes: [
+    //           {
+    //             stacked: true,
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   });
     //  multiple Bar CHART END
 
 

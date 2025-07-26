@@ -18,8 +18,8 @@
         } */
 
         .task-card:hover {
-            background: rgba(131, 179, 255, 0.801);
-            transform: translateY(-3px);
+            background: rgba(131, 199, 255, 0.801);
+            transform: translateY(-2px);
 
         }
 

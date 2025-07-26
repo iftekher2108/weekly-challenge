@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         task::overdueLastWeek()->update([
-        'status' => 'progress',
+        'status' => 'not_completed',
         ]);
 
 

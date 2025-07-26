@@ -35,21 +35,30 @@ class ReportController extends Controller
         $tasksCreated = $tasks->count();
         $tasksCompleted = $tasks->where('status', 'completed')->count();
         $tasksInProgress = $tasks->where('status', 'progress')->count();
-        $tasksNotCompleted = $tasks->where('status', '!=', 'completed')->count();
+        $tasksNotCompleted = $tasks->where('status', 'not_completed')->count();
 
         // Separate lists
         $createdTasks = $tasks;
         $completedTasks = $tasks->where('status', 'completed');
         $inProgressTasks = $tasks->where('status', 'progress');
-        $notCompletedTasks = $tasks->where('status', '!=', 'completed');
+        $notCompletedTasks = $tasks->where('status', 'not_completed');
 
         $users = User::whereBetween('created_at', [$start, $end])->get();
         $usersCreated = $users->count();
 
         return view('backend.report.index', compact(
-            'tasksCreated', 'tasksCompleted', 'tasksInProgress', 'tasksNotCompleted',
-            'usersCreated', 'start', 'end', 'period',
-            'createdTasks', 'completedTasks', 'inProgressTasks', 'notCompletedTasks'
+            'tasksCreated',
+             'tasksCompleted',
+              'tasksInProgress',
+               'tasksNotCompleted',
+            // 'usersCreated',
+             'start',
+              'end',
+               'period',
+            'createdTasks',
+             'completedTasks',
+              'inProgressTasks',
+               'notCompletedTasks'
         ));
     }
 }

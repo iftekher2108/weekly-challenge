@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -23,8 +25,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // $
-        return view('backend.dashboard');
+        $totalCompleted = task::where('user_id',Auth::user()->id)->where('status','completed')->count();
+        $totalProgress = task::where('user_id',Auth::user()->id)->where('status','progress')->count();
+       $totalIncompleted = task::where('user_id',Auth::user()->id)->where('status','not_completed')->count();
+        return view('backend.dashboard',compact(
+            'totalCompleted',
+            'totalProgress',
+            'totalIncompleted',
+
+        ));
     }
 
     public function profile() {

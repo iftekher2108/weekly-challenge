@@ -319,6 +319,13 @@
                                 </div>
                             </li> --}}
 
+                            <li class="nav-item">
+                                <div class="rounded bg-light p-2">
+                                    <strong>Points: </strong><span>{{ Auth::user()->profile->task_point }}</span>
+                                </div>
+
+                            </li>
+
                             <li class="nav-item topbar-user dropdown hidden-caret">
                                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
                                     aria-expanded="false">

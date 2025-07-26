@@ -50,9 +50,32 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Profile $profile)
+    public function update(Request $request)
     {
-        //
+        $user = auth()->user();
+        $profile = $user->profile;
+        if (!$profile) {
+            return redirect()->back()->with('error', 'Profile not found.');
+        }
+
+        $data = $request->validate([
+            'dob' => 'nullable|date',
+            'mobile' => 'nullable|string|max:255',
+            'gender' => 'nullable|string|max:255',
+            'religion' => 'nullable|string|max:255',
+            'blood' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'division' => 'nullable|string|max:255',
+            'district' => 'nullable|string|max:255',
+            'zipcode' => 'nullable|string|max:255',
+            'nid' => 'nullable|string|max:255',
+            'bid' => 'nullable|string|max:255',
+        ]);
+
+        $profile->update($data);
+
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
     /**
