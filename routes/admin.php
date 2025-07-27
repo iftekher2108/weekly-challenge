@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +38,35 @@ Route::middleware(['auth'])->group(function() {
         Route::delete('task/{id}/delete','delete')->name('admin.task.delete');
         // Route::get('task/completed','completed')->name('admin.task.completed');
     });
+
+    Route::controller(ReportController::class)->group(function(){
+        Route::get('/report', 'index')->name('admin.report')->middleware('role:user,admin');
+    });
+
+    // Company Management Routes
+    Route::controller(CompanyController::class)->group(function() {
+        Route::get('/company', 'index')->name('admin.company.index')->middleware('role:super-admin,company-admin');
+        Route::get('/company/create', 'create')->name('admin.company.create')->middleware('role:super-admin');
+        Route::post('/company/store', 'store')->name('admin.company.store')->middleware('role:super-admin');
+        Route::get('/company/{company}', 'show')->name('admin.company.show')->middleware('role:super-admin,company-admin');
+        Route::get('/company/{company}/edit', 'edit')->name('admin.company.edit')->middleware('role:super-admin,company-admin');
+        Route::put('/company/{company}/update', 'update')->name('admin.company.update')->middleware('role:super-admin,company-admin');
+        Route::delete('/company/{company}/delete', 'destroy')->name('admin.company.delete')->middleware('role:super-admin');
+        Route::get('/company/{company}/users', 'users')->name('admin.company.users')->middleware('role:super-admin,company-admin');
+    });
+
+    // User Management Routes
+    Route::controller(UserManagementController::class)->group(function() {
+        Route::get('/user', 'index')->name('admin.user.index')->middleware('role:super-admin,company-admin');
+        Route::get('/user/create', 'create')->name('admin.user.create')->middleware('role:super-admin,company-admin');
+        Route::post('/user/store', 'store')->name('admin.user.store')->middleware('role:super-admin,company-admin');
+        Route::get('/user/{user}', 'show')->name('admin.user.show')->middleware('role:super-admin,company-admin');
+        Route::get('/user/{user}/edit', 'edit')->name('admin.user.edit')->middleware('role:super-admin,company-admin');
+        Route::put('/user/{user}/update', 'update')->name('admin.user.update')->middleware('role:super-admin,company-admin');
+        Route::delete('/user/{user}/delete', 'destroy')->name('admin.user.delete')->middleware('role:super-admin,company-admin');
+    });
+
+
 
 });
 

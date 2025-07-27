@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\task;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Response;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Remove the X-Powered-By header from all responses
+        Response::macro('removePoweredBy', function ($response) {
+            $response->headers->remove('X-Powered-By');
+            return $response;
+        });
+
         task::overdueLastWeek()->update([
         'status' => 'not_completed',
         ]);
