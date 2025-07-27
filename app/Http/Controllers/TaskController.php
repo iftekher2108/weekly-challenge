@@ -17,16 +17,21 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $weeklyTasks = Category::with(['children.task' => function ($query) {
-            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $companyId = $isSuperAdmin ? $request->get('company_id') : $user->companies()->first()->id;
+        $categories = Category::where('company_id', $companyId)->with(['children', 'parent'])->get();
+        $weeklyTasks = Category::with(['children.task' => function ($query) use ($companyId) {
+            $query->where('company_id', $companyId)
+                ->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
                 ->orderBy('progress', 'desc');
-        }, 'task' => function ($query) {
-            $query->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+        }, 'task' => function ($query) use ($companyId) {
+            $query->where('company_id', $companyId)
+                ->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
                 ->orderBy('progress', 'desc');
         }])
-            ->where('user_id', Auth::user()->id)
+            ->where('company_id', $companyId)
             ->get();
-
         $weeklyTasks->transform(function ($cat) {
             $tasks = $cat->task;
             $cat->overall_progress = $tasks->count()
@@ -34,9 +39,6 @@ class TaskController extends Controller
                 : 0;
             return $cat;
         });
-
-        $categories = Category::Where('user_id',  '=', Auth::user()->id)->with(['children', 'parent'])->get();
-
         return view('backend.task.index', compact('weeklyTasks', 'categories'));
     }
 
@@ -63,6 +65,8 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
         $request->validate([
             'cat_id' => 'required',
             'user_id' => 'required',
@@ -70,9 +74,14 @@ class TaskController extends Controller
             'title' => 'string|required|max:30',
             'description' => 'string|nullable|max:250',
             'due_date' => 'required',
+            'company_id' => $isSuperAdmin ? 'required|exists:companies,id' : '',
         ]);
-
-        DB::transaction(function () use ($request) {
+        $companyId = $isSuperAdmin ? $request->company_id : $user->companies()->first()->id;
+        // Permission: only admin for company or super-admin
+        if (!$isSuperAdmin && !$user->canManageCompany($companyId)) {
+            abort(403, 'Unauthorized');
+        }
+        DB::transaction(function () use ($request, $companyId) {
             $picture = null;
             if ($request->hasFile('picture')) {
                 $dirname = 'task';
@@ -87,9 +96,9 @@ class TaskController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'due_date' => Carbon::parse($request->due_date)->format('Y-m-d'),
+                'company_id' => $companyId,
             ]);
         });
-
         return redirect()->route('admin.task')->with('success', 'Task added Successfully');
     }
 
@@ -107,6 +116,13 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $task = task::findOrFail($id);
+        $companyId = $isSuperAdmin ? $request->company_id : $user->companies()->first()->id;
+        if (!$isSuperAdmin && !$user->canManageCompany($companyId)) {
+            abort(403, 'Unauthorized');
+        }
         $request->validate([
             'cat_id' => 'required',
             'user_id' => 'required',
@@ -114,9 +130,9 @@ class TaskController extends Controller
             'title' => 'string|required|max:30',
             'description' => 'string|nullable|max:250',
             'due_date' => 'required',
+            'company_id' => $isSuperAdmin ? 'required|exists:companies,id' : '',
         ]);
-        $task = task::findOrFail($id);
-        DB::transaction(function () use ($request, $task) {
+        DB::transaction(function () use ($request, $task, $companyId) {
             $picture = $task->picture;
             if ($request->hasFile('picture')) {
                 if (Storage::disk('public')->exists('task/' . $task->picture)) {
@@ -127,7 +143,6 @@ class TaskController extends Controller
                 $request->file('picture')->storeAs($dirname, $filename, 'public');
                 $picture = $filename;
             }
-
             $task->update([
                 'user_id' => $request->user_id,
                 'cat_id' => $request->cat_id,
@@ -135,10 +150,9 @@ class TaskController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'due_date' => Carbon::parse($request->due_date)->format('Y-m-d'),
-
+                'company_id' => $companyId,
             ]);
         });
-
         return redirect()->route('admin.task')->with('success', value: 'Task update Successfully');
     }
 

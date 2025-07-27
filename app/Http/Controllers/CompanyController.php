@@ -38,7 +38,10 @@ class CompanyController extends Controller
             return redirect()->back()->with('error', 'Unauthorized access.');
         }
 
-        return view('backend.company.create');
+        // Get all users who are not super-admins
+        $adminUsers = User::where('role', '!=', 'super-admin')->get();
+
+        return view('backend.company.create', compact('adminUsers'));
     }
 
     /**
@@ -58,10 +61,8 @@ class CompanyController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'admin_name' => 'required|string|max:255',
-            'admin_email' => 'required|email|unique:users,email',
-            'admin_username' => 'required|string|unique:users,user_name',
-            'admin_password' => 'required|string|min:8',
+            'admin_user_ids' => 'required|array|min:1',
+            'admin_user_ids.*' => 'exists:users,id',
         ]);
 
         // Create company
@@ -80,17 +81,14 @@ class CompanyController extends Controller
             $company->update(['logo' => $logoPath]);
         }
 
-        // Create company admin
-        User::create([
-            'name' => $request->admin_name,
-            'email' => $request->admin_email,
-            'user_name' => $request->admin_username,
-            'password' => Hash::make($request->admin_password),
-            'role' => 'company-admin',
-            'company_id' => $company->id,
-        ]);
+        // Attach all selected admins as admins (formerly company-admins)
+        $adminSync = [];
+        foreach ($request->admin_user_ids as $adminId) {
+            $adminSync[$adminId] = ['role' => 'admin'];
+        }
+        $company->users()->attach($adminSync);
 
-        return redirect()->route('admin.company.index')->with('success', 'Company created successfully with admin user.');
+        return redirect()->route('admin.company.index')->with('success', 'Company created successfully with admin user(s).');
     }
 
     /**
@@ -120,7 +118,10 @@ class CompanyController extends Controller
             return redirect()->back()->with('error', 'Unauthorized access.');
         }
 
-        return view('backend.company.edit', compact('company'));
+        // Get all users who are not super-admins
+        $adminUsers = User::where('role', '!=', 'super-admin')->get();
+
+        return view('backend.company.edit', compact('company', 'adminUsers'));
     }
 
     /**
@@ -142,6 +143,8 @@ class CompanyController extends Controller
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
+            'admin_user_ids' => 'required|array|min:1',
+            'admin_user_ids.*' => 'exists:users,id',
         ]);
 
         $company->update([
@@ -155,14 +158,26 @@ class CompanyController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            // Delete old logo
             if ($company->logo) {
                 Storage::disk('public')->delete($company->logo);
             }
-
             $logoPath = $request->file('logo')->store('company-logos', 'public');
             $company->update(['logo' => $logoPath]);
         }
+
+        // Sync admins: set selected users as admin, others as user
+        $currentAdmins = $company->admins()->pluck('users.id')->toArray();
+        $newAdmins = $request->admin_user_ids;
+        $syncData = [];
+        foreach ($newAdmins as $adminId) {
+            $syncData[$adminId] = ['role' => 'admin'];
+        }
+        // Set previous admins not in new list to 'user'
+        $otherUsers = array_diff($currentAdmins, $newAdmins);
+        foreach ($otherUsers as $userId) {
+            $syncData[$userId] = ['role' => 'user'];
+        }
+        $company->users()->syncWithoutDetaching($syncData);
 
         return redirect()->route('admin.company.index')->with('success', 'Company updated successfully.');
     }

@@ -16,7 +16,11 @@ class task extends Model
         return $this->belongsTo(Category::class,'cat_id','id');
     }
 
-    
+    public function company() {
+        return $this->belongsTo(\App\Models\Company::class, 'company_id');
+    }
+
+
     public function scopeOverdueLastWeek($query)
 {
     return $query->where('status', 'progress')

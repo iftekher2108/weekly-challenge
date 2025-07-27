@@ -13,19 +13,45 @@ class UserManagementController extends Controller
     /**
      * Display a listing of users
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-
-        if ($user->isSuperAdmin()) {
-            // Super admin can see all users
-            $users = User::with('company')->paginate(15);
-        } else {
-            // Company admin can only see users from their company
-            $users = User::where('company_id', $user->company_id)->with('company')->paginate(15);
+        $selectedCompanyId = $request->get('company_id');
+        $companies = $user->isSuperAdmin()
+            ? \App\Models\Company::all()
+            : $user->companies;
+        $users = collect();
+        if ($selectedCompanyId) {
+            $users = \App\Models\User::whereHas('companies', function($q) use ($selectedCompanyId) {
+                $q->where('companies.id', $selectedCompanyId);
+            })->where('role', '!=', 'super-admin')->with('companies')->paginate(15);
         }
-
-        return view('backend.user.index', compact('users'));
+        // Unassigned users: users with no companies, not super-admin
+        $unassignedQuery = \App\Models\User::whereDoesntHave('companies')
+            ->where('role', '!=', 'super-admin')
+            ->with('profile');
+        if ($search = $request->get('search_name')) {
+            $unassignedQuery->where('name', 'like', "%$search%");
+        }
+        if ($search = $request->get('search_user_name')) {
+            $unassignedQuery->where('user_name', 'like', "%$search%");
+        }
+        if ($search = $request->get('search_email')) {
+            $unassignedQuery->where('email', 'like', "%$search%");
+        }
+        // Profile fields
+        $profileFields = [
+            'mobile', 'gender', 'religion', 'address', 'city', 'division', 'district', 'zipcode', 'nid', 'bid'
+        ];
+        foreach ($profileFields as $field) {
+            if ($search = $request->get('search_' . $field)) {
+                $unassignedQuery->whereHas('profile', function($q) use ($field, $search) {
+                    $q->where($field, 'like', "%$search%");
+                });
+            }
+        }
+        $unassignedUsers = $unassignedQuery->paginate(30)->appends($request->except('page'));
+        return view('backend.user.index', compact('users', 'companies', 'selectedCompanyId', 'unassignedUsers'));
     }
 
     /**
@@ -36,16 +62,12 @@ class UserManagementController extends Controller
         $user = Auth::user();
 
         if ($user->isSuperAdmin()) {
-            // Super admin can assign users to any company
             $companies = Company::where('status', 'active')->get();
         } else {
-            // Company admin can only assign users to their company
-            $companies = Company::where('id', $user->company_id)->where('status', 'active')->get();
+            $companies = $user->companies()->where('status', 'active')->get();
         }
 
-        // Available roles (excluding super-admin)
         $roles = [
-            'company-admin' => 'Company Admin',
             'admin' => 'Admin',
             'user' => 'User',
             'editor' => 'Editor',
@@ -67,28 +89,35 @@ class UserManagementController extends Controller
             'user_name' => 'required|string|max:255|unique:users,user_name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:company-admin,admin,user,editor,creator',
-            'company_id' => 'required|exists:companies,id',
+            'companies' => 'required|array',
+            'companies.*.id' => 'required|exists:companies,id',
+            'companies.*.role' => 'required|in:admin,user,editor,creator',
         ]);
 
-        // Check if user can assign to this company
-        if (!$user->canManageCompany($request->company_id)) {
-            return redirect()->back()->with('error', 'You are not authorized to assign users to this company.');
+        // Check permissions for each company assignment
+        foreach ($request->companies as $company) {
+            if (!$user->canManageCompany($company['id'])) {
+                return redirect()->back()->with('error', 'You are not authorized to assign users to this company.');
+            }
+            if ($company['role'] === 'admin' && !$user->isSuperAdmin()) {
+                return redirect()->back()->with('error', 'Only super admin can create admin users.');
+            }
         }
 
-        // Check if user can assign this role
-        if ($request->role === 'company-admin' && !$user->isSuperAdmin()) {
-            return redirect()->back()->with('error', 'Only super admin can create company admin users.');
-        }
-
-        User::create([
+        $newUser = User::create([
             'name' => $request->name,
             'user_name' => $request->user_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'company_id' => $request->company_id,
+            'role' => 'user', // base role, actual company roles are in pivot
         ]);
+
+        // Attach companies with roles
+        $syncData = [];
+        foreach ($request->companies as $company) {
+            $syncData[$company['id']] = ['role' => $company['role']];
+        }
+        $newUser->companies()->sync($syncData);
 
         return redirect()->route('admin.user.index')->with('success', 'User created successfully.');
     }
@@ -128,7 +157,6 @@ class UserManagementController extends Controller
 
         // Available roles (excluding super-admin)
         $roles = [
-            'company-admin' => 'Company Admin',
             'admin' => 'Admin',
             'user' => 'User',
             'editor' => 'Editor',
@@ -153,7 +181,7 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'user_name' => 'required|string|max:255|unique:users,user_name,' . $user->id,
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:company-admin,admin,user,editor,creator',
+            'role' => 'required|in:admin,user,editor,creator',
             'company_id' => 'required|exists:companies,id',
         ]);
 
@@ -163,8 +191,8 @@ class UserManagementController extends Controller
         }
 
         // Check if user can assign this role
-        if ($request->role === 'company-admin' && !$currentUser->isSuperAdmin()) {
-            return redirect()->back()->with('error', 'Only super admin can create company admin users.');
+        if ($request->role === 'admin' && !$currentUser->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Only super admin can create admin users.');
         }
 
         // Prevent user from changing their own role to avoid locking themselves out
@@ -218,5 +246,41 @@ class UserManagementController extends Controller
         $user->delete();
 
         return redirect()->route('admin.user.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function unassigned(Request $request)
+    {
+        $companyId = $request->get('company_id');
+        $unassignedQuery = \App\Models\User::where('role', '!=', 'super-admin')->with('profile');
+        if ($companyId) {
+            // Users not assigned to this company (but may be assigned to others)
+            $unassignedQuery->whereDoesntHave('companies', function($q) use ($companyId) {
+                $q->where('companies.id', $companyId);
+            });
+        } else {
+            // Users with no companies at all
+            $unassignedQuery->whereDoesntHave('companies');
+        }
+        if ($search = $request->get('search_name')) {
+            $unassignedQuery->where('name', 'like', "%$search%");
+        }
+        if ($search = $request->get('search_user_name')) {
+            $unassignedQuery->where('user_name', 'like', "%$search%");
+        }
+        if ($search = $request->get('search_email')) {
+            $unassignedQuery->where('email', 'like', "%$search%");
+        }
+        $profileFields = [
+            'mobile', 'gender', 'religion', 'address', 'city', 'division', 'district', 'zipcode', 'nid', 'bid'
+        ];
+        foreach ($profileFields as $field) {
+            if ($search = $request->get('search_' . $field)) {
+                $unassignedQuery->whereHas('profile', function($q) use ($field, $search) {
+                    $q->where($field, 'like', "%$search%");
+                });
+            }
+        }
+        $unassignedUsers = $unassignedQuery->paginate(30)->appends($request->except('page'));
+        return view('backend.user.unassigned', compact('unassignedUsers', 'companyId'));
     }
 }

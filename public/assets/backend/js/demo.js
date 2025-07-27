@@ -1,5 +1,15 @@
 "use strict";
 
+
+$(document).ready(function(){
+    $('.chosen-select').chosen({
+        hide_results_on_select: true,
+        search_contains: true,
+    })
+});
+
+
+
 // const modalShowcase = `
 // <!-- Demo Showcase -->
 // <style>

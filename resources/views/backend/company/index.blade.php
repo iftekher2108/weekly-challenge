@@ -26,82 +26,46 @@
                         </div>
                     @endif
 
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Logo</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Users</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($companies as $company)
-                                <tr>
-                                    <td>
+                    <div class="row">
+                        @forelse($companies as $company)
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 company-card" style="cursor:pointer;" onclick="window.location='{{ route('admin.company.show', $company) }}'">
+                                    <div class="card-body d-flex flex-column align-items-center text-center">
                                         @if($company->logo)
-                                            <img src="{{ asset('storage/' . $company->logo) }}"
-                                                 alt="{{ $company->name }}"
-                                                 class="rounded-circle"
-                                                 width="40" height="40">
+                                            <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="rounded-circle mb-3" width="60" height="60">
                                         @else
-                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                 style="width: 40px; height: 40px;">
+                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
                                                 <i class="fas fa-building text-white"></i>
                                             </div>
                                         @endif
-                                    </td>
-                                    <td>{{ $company->name }}</td>
-                                    <td>{{ $company->email ?? 'N/A' }}</td>
-                                    <td>{{ $company->phone ?? 'N/A' }}</td>
-                                    <td>
-                                        <span class="badge bg-info">{{ $company->users_count }}</span>
-                                    </td>
-                                    <td>
-                                        @if($company->status === 'active')
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('admin.company.show', $company) }}"
-                                               class="btn btn-sm btn-info">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                        <h5 class="card-title mb-1">{{ $company->name }}</h5>
+                                        <p class="mb-1"><i class="fas fa-envelope"></i> {{ $company->email ?? 'N/A' }}</p>
+                                        <p class="mb-1"><i class="fas fa-phone"></i> {{ $company->phone ?? 'N/A' }}</p>
+                                        <span class="badge bg-info mb-1">Users: {{ $company->users_count }}</span>
+                                        <span class="badge {{ $company->status === 'active' ? 'bg-success' : 'bg-danger' }} mb-2">{{ ucfirst($company->status) }}</span>
+                                        <div class="btn-group mt-2" role="group">
                                             @if(Auth::user()->canManageCompany($company->id))
-                                            <a href="{{ route('admin.company.edit', $company) }}"
-                                               class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            <a href="{{ route('admin.company.edit', $company) }}" class="btn btn-sm btn-warning" onclick="event.stopPropagation();"><i class="fas fa-edit"></i></a>
                                             @endif
                                             @if(Auth::user()->isSuperAdmin())
-                                            <form action="{{ route('admin.company.delete', $company) }}"
-                                                  method="POST"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete this company?')">
+                                            <form action="{{ route('admin.company.delete', $company) }}" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Are you sure you want to delete this company?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                                             </form>
                                             @endif
+                                            @if(Auth::user()->isSuperAdmin() || Auth::user()->canManageCompany($company->id))
+                                            <a href="{{ route('admin.report.company', $company->id) }}" class="btn btn-sm btn-secondary" onclick="event.stopPropagation();"><i class="fas fa-chart-bar"></i> Report</a>
+                                            @endif
                                         </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center">No companies found.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center">
+                                <div class="alert alert-info">No companies found.</div>
+                            </div>
+                        @endforelse
                     </div>
 
                     <div class="d-flex justify-content-center">

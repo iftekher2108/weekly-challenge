@@ -21,5 +21,9 @@ class Category extends Model
         return $this->hasMany(task::class,'cat_id','id');
     }
 
+    public function company() {
+        return $this->belongsTo(\App\Models\Company::class, 'company_id');
+    }
+
 
 }

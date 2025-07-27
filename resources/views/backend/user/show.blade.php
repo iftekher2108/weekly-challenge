@@ -39,9 +39,6 @@
                                     @case('super-admin')
                                         <span class="badge bg-danger">Super Admin</span>
                                         @break
-                                    @case('company-admin')
-                                        <span class="badge bg-primary">Company Admin</span>
-                                        @break
                                     @case('admin')
                                         <span class="badge bg-warning">Admin</span>
                                         @break

@@ -20,27 +20,27 @@ class Company extends Model
     ];
 
     /**
-     * Get all users belonging to this company
+     * The users that belong to this company.
      */
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class, 'company_user')->withPivot('role')->withTimestamps();
     }
 
     /**
-     * Get company admin users
+     * Get admin users (formerly company-admins)
      */
     public function admins()
     {
-        return $this->hasMany(User::class)->where('role', 'company-admin');
+        return $this->users()->wherePivot('role', 'admin');
     }
 
     /**
-     * Get regular employees/users
+     * Get regular employees/users.
      */
     public function employees()
     {
-        return $this->hasMany(User::class)->whereIn('role', ['user', 'editor', 'creator']);
+        return $this->users()->wherePivotIn('role', ['user', 'editor', 'creator']);
     }
 
     /**

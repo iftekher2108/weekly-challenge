@@ -15,7 +15,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::Where('user_id', '=', Auth::user()->id)->with(['children', 'parent'])->get();
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $companyId = $isSuperAdmin ? request()->get('company_id') : $user->companies()->first()->id;
+        $categories = Category::where('company_id', $companyId)->with(['children', 'parent'])->get();
         return view('backend.catagory.index', compact('categories'));
     }
 
@@ -24,14 +27,20 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
         $request->validate([
             'parent_id' => 'nullable|integer',
             'picture' => 'image|mimes:png,jpg|nullable|max:2028',
             'title' => 'string|required|max:30',
-            'description' => 'string|nullable|max:250'
+            'description' => 'string|nullable|max:250',
+            'company_id' => $isSuperAdmin ? 'required|exists:companies,id' : '',
         ]);
-
-        DB::transaction(function () use ($request) {
+        $companyId = $isSuperAdmin ? $request->company_id : $user->companies()->first()->id;
+        if (!$isSuperAdmin && !$user->canManageCompany($companyId)) {
+            abort(403, 'Unauthorized');
+        }
+        DB::transaction(function () use ($request, $companyId) {
             $picture = null;
             if ($request->hasFile('picture')) {
                 $dirname = 'category';
@@ -45,9 +54,9 @@ class CategoryController extends Controller
                 'parent_id' => $request->parent_id,
                 'title' => $request->title,
                 'description' => $request->description,
+                'company_id' => $companyId,
             ]);
         });
-
         return redirect()->route('admin.category')->with('success', 'Category added Successfully');
     }
 
@@ -64,16 +73,21 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $category = Category::findOrFail($id);
+        $companyId = $isSuperAdmin ? $request->company_id : $user->companies()->first()->id;
+        if (!$isSuperAdmin && !$user->canManageCompany($companyId)) {
+            abort(403, 'Unauthorized');
+        }
         $request->validate([
             'parent_id' => 'nullable|integer',
             'picture' => 'image|mimes:png,jpg|nullable|max:2028',
             'title' => 'string|required|max:30',
-            'description' => 'string|nullable|max:250'
+            'description' => 'string|nullable|max:250',
+            'company_id' => $isSuperAdmin ? 'required|exists:companies,id' : '',
         ]);
-
-        $category = Category::findOrFail($id);
-
-        DB::transaction(function () use ($request, $category) {
+        DB::transaction(function () use ($request, $category, $companyId) {
             $picture = $category->picture;
             if ($request->hasFile('picture')) {
                 if (Storage::disk('public')->exists('category/' . $category->picture)) {
@@ -90,9 +104,9 @@ class CategoryController extends Controller
                 'parent_id' => $request->parent_id,
                 'title' => $request->title,
                 'description' => $request->description,
+                'company_id' => $companyId,
             ]);
         });
-
         return redirect()->route('admin.category')->with('success', value: 'Category update Successfully');
     }
 

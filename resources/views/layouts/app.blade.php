@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="{{ asset('assets/backend/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/backend/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/backend/css/kaiadmin.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/backend/plugins/chosen/chosen.min.css') }}">
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('assets/backend/css/demo.css') }}" />
@@ -488,6 +489,9 @@
 
         <!-- Kaiadmin JS -->
         <script src="{{ asset('assets/backend/js/kaiadmin.min.js') }}"></script>
+
+        {{-- Chosen js --}}
+        <script src="{{ asset('assets/backend/plugins/chosen/chosen.jquery.min.js') }}"></script>
 
         <!-- Kaiadmin DEMO methods, don't include it in your project! -->
         <script src="{{ asset('assets/backend/js/setting-demo.js') }}"></script>

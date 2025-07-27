@@ -129,16 +129,16 @@
 </div>
 
 <script>
-// Disable company-admin role option for non-super admins
+// Disable admin role option for non-super admins
 document.addEventListener('DOMContentLoaded', function() {
     const roleSelect = document.getElementById('role');
     const isSuperAdmin = {{ Auth::user()->isSuperAdmin() ? 'true' : 'false' }};
     const isOwnAccount = {{ $user->id === Auth::id() ? 'true' : 'false' }};
 
     if (!isSuperAdmin && !isOwnAccount) {
-        const companyAdminOption = roleSelect.querySelector('option[value="company-admin"]');
-        if (companyAdminOption) {
-            companyAdminOption.disabled = true;
+        const adminOption = roleSelect.querySelector('option[value="admin"]');
+        if (adminOption) {
+            adminOption.disabled = true;
         }
     }
 });

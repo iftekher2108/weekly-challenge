@@ -20,8 +20,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'picture',
-        'company_id'
+        'picture'
     ];
 
     protected $hidden = [
@@ -58,26 +57,38 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is company admin
+     * Check if user is admin for a specific company (formerly company-admin)
      */
-    public function isCompanyAdmin()
+    public function isCompanyAdmin($companyId)
     {
-        return $this->role === 'company-admin';
+        return $this->roleForCompany($companyId) === 'admin';
     }
 
     /**
-     * Check if user can manage company
+     * Check if user can manage company (super-admin or admin for that company)
      */
-    public function canManageCompany($companyId = null)
+    public function canManageCompany($companyId)
     {
         if ($this->isSuperAdmin()) {
             return true;
         }
+        return $this->isCompanyAdmin($companyId);
+    }
 
-        if ($this->isCompanyAdmin()) {
-            return $companyId ? $this->company_id == $companyId : true;
-        }
+    /**
+     * The companies this user belongs to.
+     */
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class, 'company_user')->withPivot('role')->withTimestamps();
+    }
 
-        return false;
+    /**
+     * Get the user's role for a specific company.
+     */
+    public function roleForCompany($companyId)
+    {
+        $company = $this->companies->where('id', $companyId)->first();
+        return $company ? $company->pivot->role : null;
     }
 }
