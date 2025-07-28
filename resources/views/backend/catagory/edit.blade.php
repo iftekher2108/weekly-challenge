@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
         <div>
-            <h3 class="fw-bold mb-3">Category Update</h3>
+            <h3 class="fw-bold mb-3">Company Category Update: {{ $company->name }}</h3>
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
 
@@ -20,6 +20,7 @@
 
                     <!-- Hidden User ID -->
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                    <input type="hidden" name="company_id" value="{{ $company->id }}">
 
                     <!-- Parent Category Select -->
                     <div class="mb-3">

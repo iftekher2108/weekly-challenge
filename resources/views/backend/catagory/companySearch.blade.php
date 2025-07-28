@@ -20,7 +20,7 @@
                             @forelse($companies as $company)
                                 <div class="col-md-4 mb-4">
                                     <div class="card border border-primary h-100 company-card" style="cursor:pointer;"
-                                        onclick="window.location='{{ route('admin.category', $company->id) }}'">
+                                        onclick="window.location='{{ route('admin.company.category', $company->id) }}'">
                                         <div class="card-body d-flex flex-column align-items-center text-center">
                                             @if ($company->logo)
                                                 <img src="{{ asset('storage/' . $company->logo) }}"

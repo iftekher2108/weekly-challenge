@@ -24,13 +24,11 @@ class CategoryController extends Controller
      }
 
 
-    public function index()
+    public function index($id)
     {
-        $user = Auth::user();
-        $isSuperAdmin = $user->isSuperAdmin();
-        $companyId = $isSuperAdmin ? request()->get('company_id') : $user->companies()->first()->id;
-        $categories = Category::where('company_id', $companyId)->with(['children', 'parent'])->get();
-        return view('backend.catagory.index', compact('categories'));
+        $company = Company::findOrFail($id);
+        $categories = Category::where('company_id', $company->id)->with(['children', 'parent'])->get();
+        return view('backend.catagory.index', compact('categories','company'));
     }
 
     /**
@@ -47,7 +45,7 @@ class CategoryController extends Controller
             'description' => 'string|nullable|max:250',
             'company_id' => $isSuperAdmin ? 'required|exists:companies,id' : '',
         ]);
-        $companyId = $isSuperAdmin ? $request->company_id : $user->companies()->first()->id;
+        $companyId = $request->company_id ;
         if (!$isSuperAdmin && !$user->canManageCompany($companyId)) {
             abort(403, 'Unauthorized');
         }
@@ -68,15 +66,16 @@ class CategoryController extends Controller
                 'company_id' => $companyId,
             ]);
         });
-        return redirect()->route('admin.category')->with('success', 'Category added Successfully');
+        return redirect()->route('admin.company.category',$companyId)->with('success', 'Category added Successfully');
     }
 
 
-    public function edit($id)
+    public function edit($com_id, $id)
     {
-        $categories = Category::Where('user_id', '=', Auth::user()->id)->with(['children', 'parent'])->get();
+        $categories = Category::where('company_id',$com_id)->with(['children', 'parent'])->get();
         $category = Category::findOrFail($id);
-        return view('backend.catagory.edit', compact('categories', 'category'));
+        $company = Company::find($com_id);
+        return view('backend.catagory.edit', compact('categories', 'category','company'));
     }
 
     /**
@@ -118,13 +117,13 @@ class CategoryController extends Controller
                 'company_id' => $companyId,
             ]);
         });
-        return redirect()->route('admin.category')->with('success', value: 'Category update Successfully');
+        return redirect()->route('admin.company.category',$companyId)->with('success', value: 'Category update Successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
 
         $category = Category::findOrFail($id);
@@ -132,6 +131,7 @@ class CategoryController extends Controller
             Storage::disk('public')->delete('category/' . $category->picture);
         }
         $category->delete();
-        return redirect()->route('admin.category')->with('success', "category Delete Successfully");
+        $companyId = $request->company_id;
+        return redirect()->route('admin.company.category',$companyId)->with('success', "category Delete Successfully");
     }
 }

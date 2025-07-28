@@ -3,7 +3,7 @@
 @section('content')
     <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
         <div>
-            <h3 class="fw-bold mb-3">Category</h3>
+            <h3 class="fw-bold mb-3">Company Category: {{ $company->name }}</h3>
             {{-- <h6 class="op-7 mb-2">Admin Dashboard</h6> --}}
         </div>
         <div class="ms-md-auto py-2 py-md-0">
@@ -17,6 +17,8 @@
 
         <!-- Hidden User ID -->
         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+
+        <input type="hidden" name="company_id" value="{{ $company->id }}">
 
         <!-- Parent Category Select -->
         <div class="mb-3">
@@ -99,11 +101,12 @@
                                     <td>{{ $category->title }}</td>
                                     <td>{{ $category->description }}</td>
                                     <td>
-                                        <a href="{{ route('admin.category.edit',$category->id) }}" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
+                                        <a href="{{ route('admin.category.edit',['com_id' =>$company->id, 'id'=>$category->id ], ) }}" class="btn btn-outline-info"><i class="fas fa-edit"></i></a>
                                         <a href="#" class="delete-btn btn btn-danger"><i class="fas fa-trash-alt"></i></a>
                                         <form id="delete-form" action="{{ route('admin.category.delete',$category->id) }}" method="POST" >
                                             @csrf
                                             @method('DELETE')
+                                            <input type="hidden" name="company_id" value="{{ $company->id }}">
                                         </form>
                                     </td>
                                 </tr>

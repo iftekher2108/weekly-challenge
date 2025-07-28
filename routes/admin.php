@@ -22,10 +22,10 @@ Route::middleware(['auth'])->group(function() {
     Route::put('profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
 
     Route::middleware('role:admin,super-admin')->controller(CategoryController::class)->group(function () {
-      Route::get('/category/company','companySearch')->name('admin.category.company');
-        Route::get('/category', 'index')->name('admin.category');
+      Route::get('/company/category/search','companySearch')->name('admin.company.category.search');
+        Route::get('/company/{id}/category', 'index')->name('admin.company.category');
         Route::post('category/store', 'store')->name('admin.category.store');
-        Route::get('category/{id}/edit','edit')->name('admin.category.edit');
+        Route::get('company/{com_id}/category/{id}/edit','edit')->name('admin.category.edit');
         Route::put('category/{id}/update','update')->name('admin.category.update');
         Route::delete('category/{id}/delete','delete')->name('admin.category.delete');
     });
