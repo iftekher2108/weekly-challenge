@@ -13,13 +13,14 @@
                             </a>
                         @endif
                     </div>
+
                     <div class="card-body">
 
                         <div class="row">
                             @forelse($companies as $company)
                                 <div class="col-md-4 mb-4">
                                     <div class="card border border-primary h-100 company-card" style="cursor:pointer;"
-                                        onclick="window.location='{{ route('admin.company.show', $company) }}'">
+                                        onclick="window.location='{{ route('admin.category', $company->id) }}'">
                                         <div class="card-body d-flex flex-column align-items-center text-center">
                                             @if ($company->logo)
                                                 <img src="{{ asset('storage/' . $company->logo) }}"
@@ -41,7 +42,6 @@
                                                 <span
                                                     class="badge {{ $company->status === 'active' ? 'bg-success' : 'bg-danger' }} mb-2">{{ ucfirst($company->status) }}</span>
                                             </div>
-
                                             <div class="d-flex gap-2 mt-2" role="group">
                                                 @if (Auth::user()->canManageCompany($company->id))
                                                     <a href="{{ route('admin.company.edit', $company) }}"
@@ -64,6 +64,7 @@
                                                         Report</a>
                                                 @endif
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>

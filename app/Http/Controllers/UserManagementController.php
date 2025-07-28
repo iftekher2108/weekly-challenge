@@ -18,11 +18,11 @@ class UserManagementController extends Controller
         $user = Auth::user();
         $selectedCompanyId = $request->get('company_id');
         $companies = $user->isSuperAdmin()
-            ? \App\Models\Company::all()
+            ? Company::all()
             : $user->companies;
         $users = collect();
         if ($selectedCompanyId) {
-            $users = \App\Models\User::whereHas('companies', function($q) use ($selectedCompanyId) {
+            $users = User::whereHas('companies', function($q) use ($selectedCompanyId) {
                 $q->where('companies.id', $selectedCompanyId);
             })->where('role', '!=', 'super-admin')->with('companies')->paginate(15);
         }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,16 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+
+     public function companySearch() {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $companies = $isSuperAdmin ? Company::where('status','active')->paginate(10) : $user->companies()->paginate(10);
+        return view('backend.catagory.companySearch', compact('companies'));
+     }
+
+
     public function index()
     {
         $user = Auth::user();

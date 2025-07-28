@@ -37,7 +37,7 @@
 
 
                  <li @class(['nav-item', 'active' => request()->routeIs('admin.category')])>
-                     <a href="{{ route('admin.category') }}">
+                     <a href="{{ route('admin.category.company') }}">
                          <i class="fas fa-layer-group"></i>
                          <span class="sub-item">Category</span>
                      </a>

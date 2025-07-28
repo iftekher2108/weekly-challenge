@@ -97,16 +97,16 @@
                                         @endswitch
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="d-flex gap-2" role="group">
                                             <a href="{{ route('admin.user.show', $user) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                                             @if(Auth::user()->canManageCompany($selectedCompanyId))
                                             <a href="{{ route('admin.user.edit', $user) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                                             @endif
                                             @if(Auth::user()->canManageCompany($selectedCompanyId) && !$user->isSuperAdmin() && $user->id !== Auth::id())
-                                            <form action="{{ route('admin.user.delete', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                            <form action="{{ route('admin.user.delete', $user) }}" method="POST" id='delete-form' class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                                <button type="submit" class="btn btn-sm delete-btn btn-danger"><i class="fas fa-trash"></i></button>
                                             </form>
                                             @endif
                                         </div>

@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function() {
     Route::put('profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
 
     Route::middleware('role:admin,super-admin')->controller(CategoryController::class)->group(function () {
+      Route::get('/category/company','companySearch')->name('admin.category.company');
         Route::get('/category', 'index')->name('admin.category');
         Route::post('category/store', 'store')->name('admin.category.store');
         Route::get('category/{id}/edit','edit')->name('admin.category.edit');

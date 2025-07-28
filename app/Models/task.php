@@ -8,26 +8,28 @@ class task extends Model
 {
     protected $guarded = [];
 
-    public function user() {
-        return $this->belongsTo(User::class,'user_id','id');
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function category() {
-        return $this->belongsTo(Category::class,'cat_id','id');
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'cat_id', 'id');
     }
 
-    public function company() {
+    public function company()
+    {
         return $this->belongsTo(\App\Models\Company::class, 'company_id');
     }
 
 
     public function scopeOverdueLastWeek($query)
-{
-    return $query->where('status', 'progress')
-        ->whereBetween('due_date', [
-            now()->subWeek()->startOfWeek(),
-            now()->subWeek()->endOfWeek()
-        ]);
-}
-
+    {
+        return $query->where('status', 'progress')
+            ->whereBetween('due_date', [
+                now()->subWeek()->startOfWeek(),
+                now()->subWeek()->endOfWeek()
+            ]);
+    }
 }

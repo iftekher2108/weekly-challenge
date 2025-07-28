@@ -6,7 +6,6 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
@@ -142,18 +141,17 @@ class CompanyController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:active,inactive',
+            'status' => 'nullable|in:active,inactive',
             'admin_user_ids' => 'required|array|min:1',
             'admin_user_ids.*' => 'exists:users,id',
         ]);
-
         $company->update([
             'name' => $request->name,
             'description' => $request->description,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-            'status' => $request->status,
+            'status' => $request->status ? $request->status : $company->status,
         ]);
 
         // Handle logo upload
