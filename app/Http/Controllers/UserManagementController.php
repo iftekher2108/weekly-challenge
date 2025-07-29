@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
 use App\Models\User;
+use App\Models\Company;
+use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,7 +24,7 @@ class UserManagementController extends Controller
             : $user->companies;
         $users = collect();
         if ($selectedCompanyId) {
-            $users = User::whereHas('companies', function($q) use ($selectedCompanyId) {
+            $users = User::whereHas('companies', function ($q) use ($selectedCompanyId) {
                 $q->where('companies.id', $selectedCompanyId);
             })->where('role', '!=', 'super-admin')->with('companies')->paginate(15);
         }
@@ -41,11 +43,20 @@ class UserManagementController extends Controller
         }
         // Profile fields
         $profileFields = [
-            'mobile', 'gender', 'religion', 'address', 'city', 'division', 'district', 'zipcode', 'nid', 'bid'
+            'mobile',
+            'gender',
+            'religion',
+            'address',
+            'city',
+            'division',
+            'district',
+            'zipcode',
+            'nid',
+            'bid'
         ];
         foreach ($profileFields as $field) {
             if ($search = $request->get('search_' . $field)) {
-                $unassignedQuery->whereHas('profile', function($q) use ($field, $search) {
+                $unassignedQuery->whereHas('profile', function ($q) use ($field, $search) {
                     $q->where($field, 'like', "%$search%");
                 });
             }
@@ -68,11 +79,15 @@ class UserManagementController extends Controller
         }
 
         $roles = [
-            'admin' => 'Admin',
             'user' => 'User',
-            'editor' => 'Editor',
-            'creator' => 'Creator'
+            // 'editor' => 'Editor',
+            // 'creator' => 'Creator'
         ];
+
+        if (Auth::user()->isSuperAdmin()) {
+            // Push 'admin' to the beginning of the array
+            $roles = ['admin' => 'Admin'] + $roles;
+        }
 
         return view('backend.user.create', compact('companies', 'roles'));
     }
@@ -89,35 +104,36 @@ class UserManagementController extends Controller
             'user_name' => 'required|string|max:255|unique:users,user_name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'companies' => 'required|array',
-            'companies.*.id' => 'required|exists:companies,id',
-            'companies.*.role' => 'required|in:admin,user,editor,creator',
+            'company_id' => 'required|exists:companies,id',
+            'role' => 'required|in:admin,user,editor,creator',
         ]);
 
-        // Check permissions for each company assignment
-        foreach ($request->companies as $company) {
-            if (!$user->canManageCompany($company['id'])) {
+            if (!$user->canManageCompany($request->company_id)) {
                 return redirect()->back()->with('error', 'You are not authorized to assign users to this company.');
             }
-            if ($company['role'] === 'admin' && !$user->isSuperAdmin()) {
+            if ($request->role === 'admin' && !$user->isSuperAdmin()) {
                 return redirect()->back()->with('error', 'Only super admin can create admin users.');
             }
-        }
 
-        $newUser = User::create([
-            'name' => $request->name,
-            'user_name' => $request->user_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user', // base role, actual company roles are in pivot
-        ]);
+        $newUser = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'user_name' => $request->user_name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'user', // base role, actual company roles are in pivot
+            ]);
 
-        // Attach companies with roles
-        $syncData = [];
-        foreach ($request->companies as $company) {
-            $syncData[$company['id']] = ['role' => $company['role']];
-        }
-        $newUser->companies()->sync($syncData);
+            // Attach companies with roles
+            $syncData = [];
+            $syncData[$request->company_id] = ['role' => $request->role];
+            $user->companies()->sync($syncData);
+
+            Profile::create([
+                'user_id' => $user->id,
+            ]);
+            return $user;
+        });
 
         return redirect()->route('admin.user.index')->with('success', 'User created successfully.');
     }
@@ -254,7 +270,7 @@ class UserManagementController extends Controller
         $unassignedQuery = \App\Models\User::where('role', '!=', 'super-admin')->with('profile');
         if ($companyId) {
             // Users not assigned to this company (but may be assigned to others)
-            $unassignedQuery->whereDoesntHave('companies', function($q) use ($companyId) {
+            $unassignedQuery->whereDoesntHave('companies', function ($q) use ($companyId) {
                 $q->where('companies.id', $companyId);
             });
         } else {
@@ -271,11 +287,20 @@ class UserManagementController extends Controller
             $unassignedQuery->where('email', 'like', "%$search%");
         }
         $profileFields = [
-            'mobile', 'gender', 'religion', 'address', 'city', 'division', 'district', 'zipcode', 'nid', 'bid'
+            'mobile',
+            'gender',
+            'religion',
+            'address',
+            'city',
+            'division',
+            'district',
+            'zipcode',
+            'nid',
+            'bid'
         ];
         foreach ($profileFields as $field) {
             if ($search = $request->get('search_' . $field)) {
-                $unassignedQuery->whereHas('profile', function($q) use ($field, $search) {
+                $unassignedQuery->whereHas('profile', function ($q) use ($field, $search) {
                     $q->where($field, 'like', "%$search%");
                 });
             }
