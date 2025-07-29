@@ -26,7 +26,6 @@ class SuperAdminSeeder extends Seeder
                 'company_id' => null, // Super admin doesn't belong to any company
             ]);
 
-
             Profile::create([
                 'user_id' => $user->id,
                 'bal_point' => 999999999
