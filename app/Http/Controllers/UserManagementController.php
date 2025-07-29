@@ -104,16 +104,8 @@ class UserManagementController extends Controller
             'user_name' => 'required|string|max:255|unique:users,user_name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'company_id' => 'required|exists:companies,id',
-            'role' => 'required|in:admin,user,editor,creator',
+            'company_roles' => 'required|array',
         ]);
-
-            if (!$user->canManageCompany($request->company_id)) {
-                return redirect()->back()->with('error', 'You are not authorized to assign users to this company.');
-            }
-            if ($request->role === 'admin' && !$user->isSuperAdmin()) {
-                return redirect()->back()->with('error', 'Only super admin can create admin users.');
-            }
 
         $newUser = DB::transaction(function () use ($request) {
             $user = User::create([
@@ -121,12 +113,15 @@ class UserManagementController extends Controller
                 'user_name' => $request->user_name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'user', // base role, actual company roles are in pivot
             ]);
 
-            // Attach companies with roles
+            // Sync company roles
             $syncData = [];
-            $syncData[$request->company_id] = ['role' => $request->role];
+            foreach ($request->company_roles as $companyId => $role) {
+                if ($role) {
+                    $syncData[$companyId] = ['role' => $role];
+                }
+            }
             $user->companies()->sync($syncData);
 
             Profile::create([
@@ -197,31 +192,13 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'user_name' => 'required|string|max:255|unique:users,user_name,' . $user->id,
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,user,editor,creator',
-            'company_id' => 'required|exists:companies,id',
+            'company_roles' => 'required|array',
         ]);
-
-        // Check if user can assign to this company
-        if (!$currentUser->canManageCompany($request->company_id)) {
-            return redirect()->back()->with('error', 'You are not authorized to assign users to this company.');
-        }
-
-        // Check if user can assign this role
-        if ($request->role === 'admin' && !$currentUser->isSuperAdmin()) {
-            return redirect()->back()->with('error', 'Only super admin can create admin users.');
-        }
-
-        // Prevent user from changing their own role to avoid locking themselves out
-        if ($user->id === $currentUser->id && $request->role !== $currentUser->role) {
-            return redirect()->back()->with('error', 'You cannot change your own role.');
-        }
 
         $user->update([
             'name' => $request->name,
             'user_name' => $request->user_name,
             'email' => $request->email,
-            'role' => $request->role,
-            'company_id' => $request->company_id,
         ]);
 
         // Update password if provided
@@ -229,11 +206,19 @@ class UserManagementController extends Controller
             $request->validate([
                 'password' => 'required|string|min:8|confirmed',
             ]);
-
             $user->update([
                 'password' => Hash::make($request->password)
             ]);
         }
+
+        // Sync company roles
+        $syncData = [];
+        foreach ($request->company_roles as $companyId => $role) {
+            if ($role) {
+                $syncData[$companyId] = ['role' => $role];
+            }
+        }
+        $user->companies()->sync($syncData);
 
         return redirect()->route('admin.user.index')->with('success', 'User updated successfully.');
     }

@@ -65,45 +65,37 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="company_id" class="form-label">Company *</label>
-                                    <select class="form-select @error('company_id') is-invalid @enderror"
-                                            id="company_id" name="company_id" required>
-                                        <option value="">Select Company</option>
+                                    <label class="form-label">Company Roles *</label>
+                                    <div class="row">
                                         @foreach($companies as $company)
-                                            <option value="{{ $company->id }}"
-                                                {{ old('company_id', $user->company_id) == $company->id ? 'selected' : '' }}>
-                                                {{ $company->name }}
-                                            </option>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="card p-2">
+                                                    <div class="mb-1"><strong>{{ $company->name }}</strong></div>
+                                                    <select class="form-select @error('company_roles.' . $company->id) is-invalid @enderror"
+                                                            name="company_roles[{{ $company->id }}]">
+                                                        <option value="">No Access</option>
+                                                        @foreach($roles as $roleValue => $roleLabel)
+                                                            <option value="{{ $roleValue }}"
+                                                                @if(isset($user->companies) && $user->companies->contains('id', $company->id) && $user->companies->where('id', $company->id)->first()->pivot->role == $roleValue)
+                                                                    selected
+                                                                @endif
+                                                                @if($user->id === Auth::id() && $roleValue !== ($user->companies->where('id', $company->id)->first()->pivot->role ?? null))
+                                                                    disabled
+                                                                @endif
+                                                            >
+                                                                {{ $roleLabel }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('company_roles.' . $company->id)
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         @endforeach
-                                    </select>
-                                    @error('company_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="role" class="form-label">Role *</label>
-                                    <select class="form-select @error('role') is-invalid @enderror"
-                                            id="role" name="role" required
-                                            {{ $user->id === Auth::id() ? 'disabled' : '' }}>
-                                        <option value="">Select Role</option>
-                                        @foreach($roles as $roleValue => $roleLabel)
-                                            <option value="{{ $roleValue }}"
-                                                {{ old('role', $user->role) == $roleValue ? 'selected' : '' }}
-                                                {{ $user->id === Auth::id() && $roleValue !== $user->role ? 'disabled' : '' }}>
-                                                {{ $roleLabel }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('role')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    </div>
                                     <small class="form-text text-muted">
-                                        @if($user->id === Auth::id())
-                                            You cannot change your own role.
-                                        @elseif(!Auth::user()->isSuperAdmin())
-                                            Only super admin can assign company admin role.
-                                        @endif
+                                        Assign a role for each company. Select "No Access" to remove the user from that company.
                                     </small>
                                 </div>
                             </div>

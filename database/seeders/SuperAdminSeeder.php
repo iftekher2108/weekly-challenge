@@ -22,7 +22,8 @@ class SuperAdminSeeder extends Seeder
                 'user_name' => 'iftekher2108',
                 'email' => 'iftekhermahmud1@gmail.com',
                 'password' => Hash::make('Iftekher21082002'),
-                'role' => 'super-admin',
+                'super_admin' => true,
+                'is_active' => true,
                 'company_id' => null, // Super admin doesn't belong to any company
             ]);
 

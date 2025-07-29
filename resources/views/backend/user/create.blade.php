@@ -64,39 +64,31 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="company_id" class="form-label">Company *</label>
-                                    <select class="form-select @error('company_id') is-invalid @enderror"
-                                            id="company_id" name="company_id" required>
-                                        <option value="">Select Company</option>
+                                    <label class="form-label">Company Roles *</label>
+                                    <div class="row">
                                         @foreach($companies as $company)
-                                            <option value="{{ $company->id }}" {{ old('company_id', request('company_id')) == $company->id ? 'selected' : '' }}>
-                                                {{ $company->name }}
-                                            </option>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="card p-2">
+                                                    <div class="mb-1"><strong>{{ $company->name }}</strong></div>
+                                                    <select class="form-select @error('company_roles.' . $company->id) is-invalid @enderror"
+                                                            name="company_roles[{{ $company->id }}]">
+                                                        <option value="">No Access</option>
+                                                        @foreach($roles as $roleValue => $roleLabel)
+                                                            <option value="{{ $roleValue }}"
+                                                                {{ old('company_roles.' . $company->id) == $roleValue ? 'selected' : '' }}>
+                                                                {{ $roleLabel }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('company_roles.' . $company->id)
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         @endforeach
-                                    </select>
-                                    @error('company_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="role" class="form-label">Role *</label>
-                                    <select class="form-select @error('role') is-invalid @enderror"
-                                            id="role" name="role" required>
-                                        <option value="">Select Role</option>
-                                        @foreach($roles as $roleValue => $roleLabel)
-                                            <option value="{{ $roleValue }}" {{ old('role') == $roleValue ? 'selected' : '' }}>
-                                                {{ $roleLabel }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('role')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    </div>
                                     <small class="form-text text-muted">
-                                        @if(!Auth::user()->isSuperAdmin())
-                                            Only super admin can create company admin users.
-                                        @endif
+                                        Assign a role for each company. Select "No Access" to not assign the user to that company.
                                     </small>
                                 </div>
                             </div>
