@@ -22,43 +22,43 @@
                     @endif
 
                     <h5>{{ $user->name }}</h5>
-                    <p class="text-muted">@{{ $user->user_name }}</p>
+                    <p class="text-muted">{{ $user->user_name }}</p>
 
                     <div class="row text-start">
                         <div class="col-12">
                             <p><strong>Email:</strong> {{ $user->email }}</p>
                             <p><strong>Company:</strong>
-                                @if($user->company)
-                                    <span class="badge bg-info">{{ $user->company->name }}</span>
+                                @if($user->companies)
+                                    <span class="badge bg-info">{{ $user->companies->firstWhere('id',request('company_id'))->name }}</span>
                                 @else
                                     <span class="badge bg-warning">No Company</span>
                                 @endif
                             </p>
                             <p><strong>Role:</strong>
                                 @switch($user->role)
-                                    @case('super-admin')
+                                    {{-- @case('super-admin')
                                         <span class="badge bg-danger">Super Admin</span>
-                                        @break
+                                        @break --}}
                                     @case('admin')
                                         <span class="badge bg-warning">Admin</span>
                                         @break
-                                    @case('editor')
+                                    {{-- @case('editor')
                                         <span class="badge bg-info">Editor</span>
                                         @break
                                     @case('creator')
                                         <span class="badge bg-success">Creator</span>
-                                        @break
+                                        @break --}}
                                     @default
                                         <span class="badge bg-secondary">{{ ucfirst($user->role) }}</span>
                                 @endswitch
                             </p>
-                            <p><strong>Status:</strong>
+                            {{-- <p><strong>Status:</strong>
                                 @if($user->email_verified_at)
                                     <span class="badge bg-success">Verified</span>
                                 @else
                                     <span class="badge bg-warning">Unverified</span>
                                 @endif
-                            </p>
+                            </p> --}}
                             <p><strong>Joined:</strong> {{ $user->created_at->format('M d, Y') }}</p>
                             @if($user->email_verified_at)
                                 <p><strong>Verified:</strong> {{ $user->email_verified_at->format('M d, Y') }}</p>
@@ -151,12 +151,7 @@
                                                 {{ $user->canManageCompany() ? 'Yes' : 'No' }}
                                             </span>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Is Super Admin
-                                            <span class="badge bg-{{ $user->isSuperAdmin() ? 'danger' : 'secondary' }}">
-                                                {{ $user->isSuperAdmin() ? 'Yes' : 'No' }}
-                                            </span>
-                                        </li>
+
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             Is Company Admin
                                             <span class="badge bg-{{ $user->isCompanyAdmin() ? 'primary' : 'secondary' }}">

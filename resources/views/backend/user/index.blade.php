@@ -106,26 +106,29 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2" role="group">
-                                                        <a href="{{ route('admin.user.show', $user) }}"
+                                                        <a href="{{ route('admin.user.show', ['id' => $user->id,'company_id' => $selectedCompanyId]) }}"
                                                             class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                                                         @if (Auth::user()->canManageCompany($selectedCompanyId))
                                                             <a href="{{ route('admin.user.edit', $user) }}"
                                                                 class="btn btn-sm btn-warning"><i
                                                                     class="fas fa-edit"></i></a>
                                                         @endif
-                                                        @if (Auth::user()->canManageCompany($selectedCompanyId) &&
-                                                         !$user->isSuperAdmin()
-                                                         && $user->id !== Auth::id())
+                                                        @if (
+                                                            (Auth::user()->isSuperAdmin() && Auth::id() !== $user->id) ||
+                                                                (Auth::user()->canManageCompany($selectedCompanyId) &&
+                                                                    Auth::user()->companies->where('company_id', $selectedCompanyId)->first()?->pivot?->role !== 'admin' &&
+                                                                    !$user->isSuperAdmin() &&
+                                                                    $user->companies->where('company_id', $selectedCompanyId)->first()?->pivot?->role !== 'admin' &&
+                                                                    Auth::id() !== $user->id))
 
-                                                                <form action="{{ route('admin.user.delete', $user) }}"
-                                                                    method="POST" id='delete-form' class="d-inline">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="button"
-                                                                        class="btn btn-sm delete-btn btn-danger"><i
-                                                                            class="fas fa-trash"></i></button>
-                                                                </form>
-
+                                                            <form action="{{ route('admin.user.delete', $user) }}"
+                                                                method="POST" id='delete-form' class="d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="button"
+                                                                    class="btn btn-sm delete-btn btn-danger"><i
+                                                                        class="fas fa-trash"></i></button>
+                                                            </form>
                                                         @endif
                                                     </div>
                                                 </td>
@@ -219,6 +222,9 @@
                     </div>
                 </div>
             @endif
+
+
+            
         </div>
     @endsection
 

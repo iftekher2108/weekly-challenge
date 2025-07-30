@@ -29,7 +29,9 @@
                                 <div class="mb-3">
                                     <label for="user_name" class="form-label">Username *</label>
                                     <input type="text" class="form-control @error('user_name') is-invalid @enderror"
-                                           id="user_name" name="user_name" value="{{ old('user_name', $user->user_name) }}" required>
+                                           id="user_name" name="user_name" value="{{ old('user_name', $user->user_name) }}" required
+                                           {{ !Auth::user()->isSuperAdmin() && $user->id !== Auth::id() ? 'disabled' : '' }}
+                                           >
                                     @error('user_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -38,7 +40,9 @@
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address *</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                           id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                                           id="email" name="email" value="{{ old('email', $user->email) }}" required
+                                           {{ !Auth::user()->isSuperAdmin() && $user->id !== Auth::id() ? 'disabled' : '' }}
+                                           >
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

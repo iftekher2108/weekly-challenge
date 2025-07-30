@@ -35,13 +35,18 @@
 
                  </li>
 
+                 @if (Auth::user()->isCompanyAdmin())
+                     <li @class([
+                         'nav-item',
+                         'active' => request()->routeIs('admin.company.category'),
+                     ])>
+                         <a href="{{ route('admin.company.category.search') }}">
+                             <i class="fas fa-layer-group"></i>
+                             <span class="sub-item">Category</span>
+                         </a>
+                     </li>
+                 @endif
 
-                 <li @class(['nav-item', 'active' => request()->routeIs('admin.company.category')])>
-                     <a href="{{ route('admin.company.category.search') }}">
-                         <i class="fas fa-layer-group"></i>
-                         <span class="sub-item">Category</span>
-                     </a>
-                 </li>
 
                  <li @class(['nav-item', 'active' => request()->routeIs('admin.task')])>
                      <a href="{{ route('admin.task') }}">
@@ -57,24 +62,24 @@
                      </a>
                  </li>
 
-                 @if(Auth::user()->isSuperAdmin() || Auth::user()->isCompanyAdmin())
-                 <li @class(['nav-item', 'active' => request()->routeIs('admin.company.*')])>
+
+                 <li @class([
+                     'nav-item',
+                     'active' => request()->routeIs('admin.company.*'),
+                 ])>
                      <a href="{{ route('admin.company.index') }}">
                          <i class="fas fa-building"></i>
                          <span class="sub-item">Companies</span>
                      </a>
                  </li>
-                 @endif
 
-                 @if(Auth::user()->isSuperAdmin() || Auth::user()->isCompanyAdmin())
+
                  <li @class(['nav-item', 'active' => request()->routeIs('admin.user.*')])>
                      <a href="{{ route('admin.user.index') }}">
                          <i class="fas fa-users"></i>
                          <span class="sub-item">Users</span>
                      </a>
                  </li>
-                 @endif
-
 
                  {{-- <li class="nav-item">
                      <a data-bs-toggle="collapse" href="#sidebarLayouts">

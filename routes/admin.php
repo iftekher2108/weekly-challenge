@@ -66,8 +66,8 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/user', 'index')->name('admin.user.index')->middleware('role:super-admin,user');
         Route::get('/user/create', 'create')->name('admin.user.create')->middleware('role:super-admin,user');
         Route::post('/user/store', 'store')->name('admin.user.store')->middleware('role:super-admin,user');
-        Route::get('/user/{user}', 'show')->name('admin.user.show')->middleware('role:super-admin,user');
-        Route::get('/user/{user}/edit', 'edit')->name('admin.user.edit')->middleware('role:super-admin,user');
+        Route::get('/user/{id}', 'show')->name('admin.user.show')->middleware('role:super-admin,user');
+        Route::get('/user/{id}/edit', 'edit')->name('admin.user.edit')->middleware('role:super-admin,user');
         Route::put('/user/{user}/update', 'update')->name('admin.user.update')->middleware('role:super-admin,user');
         Route::delete('/user/{user}/delete', 'destroy')->name('admin.user.delete')->middleware('role:super-admin,user');
         Route::get('/user/unassigned', 'unassigned')->name('admin.user.unassigned')->middleware('role:super-admin,user');

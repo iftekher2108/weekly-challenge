@@ -60,7 +60,7 @@ class CompanyController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'admin_user_ids' => 'required|array|min:1',
+            'admin_user_ids' => 'nullable|array|min:1',
             'admin_user_ids.*' => 'exists:users,id',
         ]);
 
@@ -83,26 +83,23 @@ class CompanyController extends Controller
         // Attach all selected admins as admins (formerly company-admins)
         $adminSync = [];
         $company_ids = [];
-        foreach ($request->admin_user_ids as $adminId) {
-            $adminSync[$adminId] = ['role' => 'admin'];
-            $user = User::find($adminId);
-              // 👇 Properly merge flat values from user->company_id
-    $company_ids = array_merge($company_ids, explode(',', $user->company_id));
+        if ($request->admin_user_ids) {
+            foreach ($request->admin_user_ids as $adminId) {
+                $adminSync[$adminId] = ['role' => 'admin'];
+                $user = User::find($adminId);
+                // 👇 Properly merge flat values from user->company_id
+                $company_ids = array_merge($company_ids, explode(',', $user->company_id));
+            }
+            $company_ids[] = $company->id;
+            // 🧹 Remove duplicates and reset array keys
+            $company_ids = array_values(array_unique($company_ids));
+
+            // ✅ Convert final array to string (for DB update)
+            $company_id_string = implode(',', $company_ids);
+            User::whereIn('id', array_keys($adminSync))->update(['company_id' => $company_id_string]);
+            $company->users()->attach($adminSync);
         }
-        // Add the current company ID
-        $company_ids[] = $company->id;
 
-        // 🧹 Remove duplicates and reset array keys
-        $company_ids = array_values(array_unique($company_ids));
-
-        // ✅ Convert final array to string (for DB update)
-        $company_id_string = implode(',', $company_ids);
-
-        // 🛠️ Update users' company_id
-        User::whereIn('id', array_keys($adminSync))
-            ->update(['company_id' => $company_id_string]);
-
-        $company->users()->attach($adminSync);
         return redirect()->route('admin.company.index')->with('success', 'Company created successfully with admin user(s).');
     }
 
@@ -158,7 +155,7 @@ class CompanyController extends Controller
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'nullable|in:active,inactive',
-            'admin_user_ids' => 'required|array|min:1',
+            'admin_user_ids' => 'nullable|array|min:1',
             'admin_user_ids.*' => 'exists:users,id',
         ]);
         $company->update([
@@ -181,17 +178,29 @@ class CompanyController extends Controller
 
         // Sync admins: set selected users as admin, others as user
         $currentAdmins = $company->admins()->pluck('users.id')->toArray();
-        $newAdmins = $request->admin_user_ids;
-        $syncData = [];
-        $company_ids = [$company->id];
-        foreach ($newAdmins as $adminId) {
-            $syncData[$adminId] = ['role' => 'admin'];
-            $user = User::find($adminId);
-            $company_ids[] = $user->company_id;
-            User::where('id', $adminId)->update(['company_id' => implode(',', $company_ids)]);
+
+        $company_ids = [ explode(',',$company->id)];
+
+        $adminSync = [];
+        if ($request->admin_user_ids) {
+            foreach ($request->admin_user_ids as $adminId) {
+                $adminSync[$adminId] = ['role' => 'admin'];
+                $user = User::find($adminId);
+                // 👇 Properly merge flat values from user->company_id
+                $company_ids = array_merge($company_ids, explode(',', $user->company_id));
+            }
+            $company_ids[] = $company->id;
+            // 🧹 Remove duplicates and reset array keys
+            $company_ids = array_values(array_unique($company_ids));
+
+            // ✅ Convert final array to string (for DB update)
+            $company_id_string = implode(',', $company_ids);
+            User::whereIn('id', array_keys($adminSync))->update(['company_id' => $company_id_string]);
+            $company->users()->attach($adminSync);
         }
+
         // Set previous admins not in new list to 'user'
-        $otherUsers = array_diff($currentAdmins, $newAdmins);
+        $otherUsers = array_diff($currentAdmins, $adminSync);
         foreach ($otherUsers as $userId) {
             $syncData[$userId] = ['role' => 'user'];
         }

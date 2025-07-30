@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -39,6 +40,10 @@ class SuperAdminSeeder extends Seeder
         $this->command->info('Password: Iftekher21082002');
         // ================================== super admin ===========================
 
+        Company::create([
+            'name' => 'team',
+            'status' => 'active',
+        ]);
 
         // ========================== user-1 ==========================
         DB::transaction(function () {
@@ -85,7 +90,6 @@ class SuperAdminSeeder extends Seeder
         $this->command->info('Email: user-2@gmail.com');
         $this->command->info('Password: user-2');
         // ========================== user-2 ==========================
-
 
         // ========================== user-3 ==========================
         DB::transaction(function () {

@@ -129,13 +129,15 @@ class UserManagementController extends Controller
     /**
      * Display the specified user
      */
-    public function show(User $user)
+    public function show($id)
     {
         $currentUser = Auth::user();
 
-        if (!$currentUser->canManageCompany($user->company_id)) {
-            return redirect()->back()->with('error', 'Unauthorized access.');
-        }
+        // if (!$currentUser->canManageCompany($user->company_id)) {
+        //     return redirect()->back()->with('error', 'Unauthorized access.');
+        // }
+
+        $user = User::findOrFail($id);
 
         return view('backend.user.show', compact('user'));
     }
@@ -143,11 +145,12 @@ class UserManagementController extends Controller
     /**
      * Show the form for editing the specified user
      */
-    public function edit(User $user)
+    public function edit($id)
     {
         $currentUser = Auth::user();
+        $user = User::findOrFail($id);
 
-        if (!$currentUser->canManageCompany($user->company_id)) {
+        if (!$currentUser->canManageCompany($user->company_id) && !$currentUser->id) {
             return redirect()->back()->with('error', 'Unauthorized access.');
         }
 
@@ -163,9 +166,11 @@ class UserManagementController extends Controller
         $roles = [
             'admin' => 'Admin',
             'user' => 'User',
-            'editor' => 'Editor',
-            'creator' => 'Creator'
+            // 'editor' => 'Editor',
+            // 'creator' => 'Creator'
         ];
+
+
 
         return view('backend.user.edit', compact('user', 'companies', 'roles'));
     }
@@ -265,16 +270,9 @@ class UserManagementController extends Controller
             $unassignedQuery->where('email', 'like', "%$search%");
         }
         $profileFields = [
-            'mobile',
             'gender',
             'religion',
-            'address',
             'city',
-            'division',
-            'district',
-            'zipcode',
-            'nid',
-            'bid'
         ];
         foreach ($profileFields as $field) {
             if ($search = $request->get('search_' . $field)) {
