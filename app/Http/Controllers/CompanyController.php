@@ -21,7 +21,7 @@ class CompanyController extends Controller
             $companies = Company::withCount('users')->paginate(10);
         } else {
             // Company admins can only see their own company
-            $companies = Company::where('id', $user->company_id)->withCount('users')->paginate(10);
+            $companies = Company::whereIn('id', $user->companies()->pluck('companies.id'))->withCount('users')->paginate(10);
         }
 
         return view('backend.company.index', compact('companies'));
@@ -82,11 +82,27 @@ class CompanyController extends Controller
 
         // Attach all selected admins as admins (formerly company-admins)
         $adminSync = [];
+        $company_ids = [];
         foreach ($request->admin_user_ids as $adminId) {
             $adminSync[$adminId] = ['role' => 'admin'];
+            $user = User::find($adminId);
+              // 👇 Properly merge flat values from user->company_id
+    $company_ids = array_merge($company_ids, explode(',', $user->company_id));
         }
-        $company->users()->attach($adminSync);
+        // Add the current company ID
+        $company_ids[] = $company->id;
 
+        // 🧹 Remove duplicates and reset array keys
+        $company_ids = array_values(array_unique($company_ids));
+
+        // ✅ Convert final array to string (for DB update)
+        $company_id_string = implode(',', $company_ids);
+
+        // 🛠️ Update users' company_id
+        User::whereIn('id', array_keys($adminSync))
+            ->update(['company_id' => $company_id_string]);
+
+        $company->users()->attach($adminSync);
         return redirect()->route('admin.company.index')->with('success', 'Company created successfully with admin user(s).');
     }
 
@@ -167,8 +183,12 @@ class CompanyController extends Controller
         $currentAdmins = $company->admins()->pluck('users.id')->toArray();
         $newAdmins = $request->admin_user_ids;
         $syncData = [];
+        $company_ids = [$company->id];
         foreach ($newAdmins as $adminId) {
             $syncData[$adminId] = ['role' => 'admin'];
+            $user = User::find($adminId);
+            $company_ids[] = $user->company_id;
+            User::where('id', $adminId)->update(['company_id' => implode(',', $company_ids)]);
         }
         // Set previous admins not in new list to 'user'
         $otherUsers = array_diff($currentAdmins, $newAdmins);

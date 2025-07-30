@@ -53,7 +53,9 @@
                                                         method="POST" id='delete-form' class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="button" class="btn btn-sm delete-btn btn-danger"><i
+                                                        <button type="button"
+                                                        onclick="deleteCompany(event)"
+                                                        class="btn btn-sm btn-danger"><i
                                                                 class="fas fa-trash"></i></button>
                                                     </form>
                                                 @endif
@@ -87,7 +89,7 @@
 
 @push('scripts')
     <script>
-        $('.delete-btn').on('click', function(e) {
+        function deleteCompany(e) {
             e.stopPropagation();
             swal({
                 title: "Are you sure you want to delete this company?",
@@ -120,6 +122,6 @@
                     swal.close();
                 }
             });
-        });
+        };
     </script>
 @endpush

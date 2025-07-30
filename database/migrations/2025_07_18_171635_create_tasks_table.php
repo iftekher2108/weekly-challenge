@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('cat_id');
             $table->foreign('cat_id')->references('id')->on('categories')->onDelete('cascade');
             $table->string('picture')->nullable();
             $table->string('title');
             $table->string('description')->nullable();
-            $table->integer('point')->default(0); // Task points
-            $table->enum('status', ['progress', 'not_completed' ,'completed'])->default('progress');
+            $table->integer('point')->default(10); // Task points
+            
+            $table->enum('status', ['todo', 'progress', 'not_completed' ,'completed'])->default('todo');
             $table->integer('progress')->default(0); // Progress %
             $table->date('due_date')->nullable(); //
             $table->timestamps();

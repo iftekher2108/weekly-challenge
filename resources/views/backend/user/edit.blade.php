@@ -73,7 +73,6 @@
                                                     <div class="mb-1"><strong>{{ $company->name }}</strong></div>
                                                     <select class="form-select @error('company_roles.' . $company->id) is-invalid @enderror"
                                                             name="company_roles[{{ $company->id }}]">
-                                                        <option value="">No Access</option>
                                                         @foreach($roles as $roleValue => $roleLabel)
                                                             <option value="{{ $roleValue }}"
                                                                 @if(isset($user->companies) && $user->companies->contains('id', $company->id) && $user->companies->where('id', $company->id)->first()->pivot->role == $roleValue)

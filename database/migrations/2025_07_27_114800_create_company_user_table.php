@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
-            $table->enum('role', ['admin', 'user', 'editor', 'creator'])->default('user');
+            $table->enum('role', ['admin', 'user'])->default('user');
             $table->timestamps();
             $table->unique(['user_id', 'company_id']);
         });

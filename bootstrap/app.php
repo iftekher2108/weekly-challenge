@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\Role;
+use App\Http\Middleware\CompanyRole;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => Role::class,
+            'companyRole' => CompanyRole::class,
         ]);
 
     })

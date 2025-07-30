@@ -29,7 +29,7 @@ class UserManagementController extends Controller
             })->where('role', '!=', 'super-admin')->with('companies')->paginate(15);
         }
         // Unassigned users: users with no companies, not super-admin
-        $unassignedQuery = \App\Models\User::whereDoesntHave('companies')
+        $unassignedQuery = User::whereDoesntHave('companies')
             ->where('role', '!=', 'super-admin')
             ->with('profile');
         if ($search = $request->get('search_name')) {
@@ -43,16 +43,9 @@ class UserManagementController extends Controller
         }
         // Profile fields
         $profileFields = [
-            'mobile',
             'gender',
             'religion',
-            'address',
             'city',
-            'division',
-            'district',
-            'zipcode',
-            'nid',
-            'bid'
         ];
         foreach ($profileFields as $field) {
             if ($search = $request->get('search_' . $field)) {

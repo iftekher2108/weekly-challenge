@@ -91,16 +91,17 @@
                                                             <span class="badge bg-warning">Admin</span>
                                                         @break
 
-                                                        @case('editor')
+                                                        {{-- @case('editor')
                                                             <span class="badge bg-info">Editor</span>
                                                         @break
 
                                                         @case('creator')
                                                             <span class="badge bg-success">Creator</span>
-                                                        @break
+                                                        @break --}}
 
                                                         @default
-                                                            <span class="badge bg-secondary">{{ ucfirst($user->role) }}</span>
+                                                            <span
+                                                                class="badge bg-secondary">{{ ucfirst($user->companies->where('id', $selectedCompanyId)->first()->pivot->role) }}</span>
                                                     @endswitch
                                                 </td>
                                                 <td>
@@ -112,16 +113,19 @@
                                                                 class="btn btn-sm btn-warning"><i
                                                                     class="fas fa-edit"></i></a>
                                                         @endif
-                                                        @if (Auth::user()->canManageCompany($selectedCompanyId) && !$user->isSuperAdmin() && $user->id !== Auth::id())
-                                                            <form action="{{ route('admin.user.delete', $user) }}"
-                                                                method="POST" id='delete-form' class="d-inline"
-                                                                onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="btn btn-sm delete-btn btn-danger"><i
-                                                                        class="fas fa-trash"></i></button>
-                                                            </form>
+                                                        @if (Auth::user()->canManageCompany($selectedCompanyId) &&
+                                                         !$user->isSuperAdmin()
+                                                         && $user->id !== Auth::id())
+
+                                                                <form action="{{ route('admin.user.delete', $user) }}"
+                                                                    method="POST" id='delete-form' class="d-inline">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="button"
+                                                                        class="btn btn-sm delete-btn btn-danger"><i
+                                                                            class="fas fa-trash"></i></button>
+                                                                </form>
+
                                                         @endif
                                                     </div>
                                                 </td>
@@ -143,7 +147,7 @@
                 </div>
             @endif
 
-            @if ($unassignedUsers->count())
+            @if ($unassignedUsers->count() && Auth::user()->isSuperAdmin())
                 <div class="row mt-5">
                     <div class="col-12">
                         <div class="card">
@@ -159,32 +163,13 @@
                                                 placeholder="Username" value="{{ request('search_user_name') }}"></div>
                                         <div class="col-md-2"><input type="text" name="search_email" class="form-control"
                                                 placeholder="Email" value="{{ request('search_email') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_mobile" class="form-control"
-                                                placeholder="Mobile" value="{{ request('search_mobile') }}"></div>
                                         <div class="col-md-2"><input type="text" name="search_gender" class="form-control"
                                                 placeholder="Gender" value="{{ request('search_gender') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_religion"
-                                                class="form-control" placeholder="Religion"
-                                                value="{{ request('search_religion') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_address"
-                                                class="form-control" placeholder="Address"
-                                                value="{{ request('search_address') }}"></div>
+                                        <div class="col-md-2"><input type="text" name="search_religion" class="form-control"
+                                                placeholder="Religion" value="{{ request('search_religion') }}"></div>
                                         <div class="col-md-2"><input type="text" name="search_city" class="form-control"
                                                 placeholder="City" value="{{ request('search_city') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_division"
-                                                class="form-control" placeholder="Division"
-                                                value="{{ request('search_division') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_district"
-                                                class="form-control" placeholder="District"
-                                                value="{{ request('search_district') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_zipcode"
-                                                class="form-control" placeholder="Zipcode"
-                                                value="{{ request('search_zipcode') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_nid" class="form-control"
-                                                placeholder="NID" value="{{ request('search_nid') }}"></div>
-                                        <div class="col-md-2"><input type="text" name="search_bid" class="form-control"
-                                                placeholder="BID" value="{{ request('search_bid') }}"></div>
-                                        <div class="col-md-2 d-flex gap-2">
+                                        <div class="col-md-4 d-flex gap-2">
                                             <button type="submit" class="btn btn-primary w-100">Search</button>
                                             <a href="{{ route('admin.user.index') }}"
                                                 class="btn btn-secondary w-100">Reset</a>
@@ -203,11 +188,7 @@
                                                 <th>Religion</th>
                                                 <th>Address</th>
                                                 <th>City</th>
-                                                <th>Division</th>
-                                                <th>District</th>
-                                                <th>Zipcode</th>
-                                                <th>NID</th>
-                                                <th>BID</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -221,11 +202,6 @@
                                                     <td>{{ $user->profile->religion ?? '' }}</td>
                                                     <td>{{ $user->profile->address ?? '' }}</td>
                                                     <td>{{ $user->profile->city ?? '' }}</td>
-                                                    <td>{{ $user->profile->division ?? '' }}</td>
-                                                    <td>{{ $user->profile->district ?? '' }}</td>
-                                                    <td>{{ $user->profile->zipcode ?? '' }}</td>
-                                                    <td>{{ $user->profile->nid ?? '' }}</td>
-                                                    <td>{{ $user->profile->bid ?? '' }}</td>
                                                 </tr>
                                             @empty
                                                 <tr>
@@ -245,3 +221,42 @@
             @endif
         </div>
     @endsection
+
+    @push('scripts')
+        <script>
+            $('.delete-btn').on('click', function(e) {
+                e.stopPropagation();
+                swal({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    type: "warning",
+                    buttons: {
+                        confirm: {
+                            text: "Yes, delete it!",
+                            className: "btn btn-success",
+                        },
+                        cancel: {
+                            visible: true,
+                            className: "btn btn-danger",
+                        },
+                    },
+                }).then((Delete) => {
+                    if (Delete) {
+                        $('#delete-form').submit();
+                        swal({
+                            title: "Deleted!",
+                            text: "Your file has been deleted.",
+                            type: "success",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-success",
+                                },
+                            },
+                        });
+                    } else {
+                        swal.close();
+                    }
+                });
+            });
+        </script>
+    @endpush
