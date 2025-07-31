@@ -15,9 +15,9 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role in Company</th>
-                                    @if (Auth::user()->canManageCompany($company->id))
+                                    {{-- @if (Auth::user()->canManageCompany($company->id)) --}}
                                         <th>Action</th>
-                                    @endif
+                                    {{-- @endif --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -25,11 +25,11 @@
                                     <tr>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->pivot->role }}</td>
-                                        @if (Auth::user()->canManageCompany($company->id))
+                                        <td><span class="badge {{ $user->pivot->role == 'admin' ? 'badge-primary' : 'badge-info' }} ">{{ $user->pivot->role }}</span></td>
+                                        {{-- @if (Auth::user()->canManageCompany($company->id)) --}}
                                             <td>
                                                 <div class="d-flex gap-2" role="group">
-                                                    <a href="{{ route('admin.user.show', $user) }}"
+                                                    <a href="{{ route('admin.user.show',['id' => $user->id, "company_id" => $company->id]) }}"
                                                         class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                                                     @if (Auth::user()->canManageCompany($company->id))
                                                         <a href="{{ route('admin.user.edit', $user) }}"
@@ -48,7 +48,7 @@
                                                     @endif
                                                 </div>
                                             </td>
-                                        @endif
+                                        {{-- @endif --}}
                                     </tr>
                                 @endforeach
                             </tbody>

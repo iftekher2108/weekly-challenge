@@ -110,9 +110,6 @@ class CompanyController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->canManageCompany($company->id)) {
-            return redirect()->back()->with('error', 'Unauthorized access.');
-        }
 
         $company->load(['users', 'admins', 'employees']);
 
@@ -177,10 +174,9 @@ class CompanyController extends Controller
         }
 
         // Sync admins: set selected users as admin, others as user
-        $currentAdmins = $company->admins()->pluck('users.id')->toArray();
+        // $currentAdmins = $company->admins()->pluck('users.id')->toArray();
 
-        $company_ids = [ explode(',',$company->id)];
-
+        $company_ids = [];
         $adminSync = [];
         if ($request->admin_user_ids) {
             foreach ($request->admin_user_ids as $adminId) {
@@ -200,11 +196,12 @@ class CompanyController extends Controller
         }
 
         // Set previous admins not in new list to 'user'
-        $otherUsers = array_diff($currentAdmins, $adminSync);
-        foreach ($otherUsers as $userId) {
-            $syncData[$userId] = ['role' => 'user'];
-        }
-        $company->users()->syncWithoutDetaching($syncData);
+        // $otherUsers = array_diff($currentAdmins, $adminSync);
+        // foreach ($otherUsers as $userId) {
+        //     $syncData[$userId] = ['role' => 'user'];
+        // }
+
+        // $company->users()->syncWithoutDetaching($syncData);
 
         return redirect()->route('admin.company.index')->with('success', 'Company updated successfully.');
     }
@@ -219,12 +216,17 @@ class CompanyController extends Controller
             return redirect()->back()->with('error', 'Unauthorized access.');
         }
 
+        if($company->users()) {
+           $company_user = $company->users()->get();
+           dd($company_user->pluck('company_id'));
+        }
+
         // Delete company logo
         if ($company->logo) {
             Storage::disk('public')->delete($company->logo);
         }
 
-        $company->delete();
+        // $company->delete();
 
         return redirect()->route('admin.company.index')->with('success', 'Company deleted successfully.');
     }
@@ -236,9 +238,9 @@ class CompanyController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->canManageCompany($company->id)) {
-            return redirect()->back()->with('error', 'Unauthorized access.');
-        }
+        // if (!$user->canManageCompany($company->id)) {
+        //     return redirect()->back()->with('error', 'Unauthorized access.');
+        // }
 
         $users = $company->users()->paginate(10);
 

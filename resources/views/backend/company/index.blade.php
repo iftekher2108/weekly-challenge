@@ -50,12 +50,12 @@
                                                 @endif
                                                 @if (Auth::user()->isSuperAdmin())
                                                     <form action="{{ route('admin.company.delete', $company) }}"
-                                                        method="POST" id='delete-form' class="d-inline">
+                                                        method="POST" class="delete-form d-inline">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="button"
                                                         onclick="deleteCompany(event)"
-                                                        class="btn btn-sm btn-danger"><i
+                                                        class="btn btn-sm delete-btn btn-danger"><i
                                                                 class="fas fa-trash"></i></button>
                                                     </form>
                                                 @endif
@@ -89,7 +89,7 @@
 
 @push('scripts')
     <script>
-        function deleteCompany(e) {
+        $('.delete-btn').click(function(e){
             e.stopPropagation();
             swal({
                 title: "Are you sure you want to delete this company?",
@@ -107,7 +107,7 @@
                 },
             }).then((Delete) => {
                 if (Delete) {
-                    $('#delete-form').submit();
+                    $(this).closest('.delete-form').submit();
                     swal({
                         title: "Deleted!",
                         text: "Your file has been deleted.",
@@ -122,6 +122,6 @@
                     swal.close();
                 }
             });
-        };
+        });
     </script>
 @endpush

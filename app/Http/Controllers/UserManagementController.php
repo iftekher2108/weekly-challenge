@@ -188,15 +188,15 @@ class UserManagementController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'user_name' => 'required|string|max:255|unique:users,user_name,' . $user->id,
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'user_name' => ['string','max:255','unique:users,user_name,'. $user->id],
+            'email' => 'email|unique:users,email,' . $user->id,
             'company_roles' => 'required|array',
         ]);
 
         $user->update([
-            'name' => $request->name,
-            'user_name' => $request->user_name,
-            'email' => $request->email,
+            'name' => $request->name ,
+            'user_name' => $request->user_name ?? $user->user_name,
+            'email' => $request->email ?? $user->email,
         ]);
 
         // Update password if provided

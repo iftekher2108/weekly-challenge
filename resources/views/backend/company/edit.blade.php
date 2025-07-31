@@ -105,11 +105,10 @@
                                 <div class="col-md-6">
                                     <h5>Company Admin Information</h5>
                                     <div class="mb-3">
-                                        <label for="admin_user_ids" class="form-label">Select Company Admin(s) <span
-                                                class="text-danger">*</span></label>
+                                        <label for="admin_user_ids" class="form-label">Select Company Admin(s)</label>
                                         <select
                                             class="form-control chosen-select @error('admin_user_ids') is-invalid @enderror"
-                                            id="admin_user_ids" name="admin_user_ids[]" multiple required>
+                                            id="admin_user_ids" name="admin_user_ids[]" multiple>
                                             @foreach ($adminUsers as $user)
                                                 <option value="{{ $user->id }}"
                                                     {{ collect(old('admin_user_ids', $company->admins()->pluck('users.id')->toArray()))->contains($user->id) ? 'selected' : '' }}>
