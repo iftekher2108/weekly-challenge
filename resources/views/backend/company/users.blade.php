@@ -35,8 +35,21 @@
                                                         <a href="{{ route('admin.user.edit', $user) }}"
                                                             class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                                                     @endif
-                                                    @if (Auth::user()->canManageCompany($company->id) && !$user->isSuperAdmin() && $user->id !== Auth::id())
-                                                        <form action="{{ route('admin.user.delete', $user) }}"
+                                                    @if (
+    Auth::user()->canManageCompany($company->id) &&
+    $user->id !== Auth::id() &&
+    (
+        Auth::user()->isSuperAdmin() || // SuperAdmin can delete anyone
+        ($user->roleForCompany($company->id) !== 'admin')        // Admin can delete if target is NOT a SuperAdmin
+    ))
+
+                                                         <a class="btn btn-sm btn-danger"
+                                                         href="{{ route('admin.user.remove-form-com',['id' => $user->id, 'company_id' => $company->id ]) }}"
+                                                          >
+                                                           <i class="fas fa-trash"></i>
+                                                         </a>
+
+                                                    {{-- <form action="{{ route('admin.user.delete', $user) }}"
                                                             method="POST" id='delete-form' class="d-inline"
                                                             onsubmit="return confirm('Are you sure you want to delete this user?')">
                                                             @csrf
@@ -44,7 +57,7 @@
                                                             <button type="submit"
                                                                 class="btn btn-sm delete-btn btn-danger"><i
                                                                     class="fas fa-trash"></i></button>
-                                                        </form>
+                                                        </form> --}}
                                                     @endif
                                                 </div>
                                             </td>
@@ -68,7 +81,7 @@
         $('.delete-btn').on('click', function(e) {
             e.stopPropagation();
             swal({
-                title: "Are you sure you want to delete this company?",
+                title: "Are you sure you want to remove this user?",
                 text: "You won't be able to revert this!",
                 type: "warning",
                 buttons: {
@@ -86,7 +99,7 @@
                     $('#delete-form').submit();
                     swal({
                         title: "Deleted!",
-                        text: "Your file has been deleted.",
+                        text: "Your user has been removed.",
                         type: "success",
                         buttons: {
                             confirm: {

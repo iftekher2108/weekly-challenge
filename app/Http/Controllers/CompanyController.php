@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
 
 class CompanyController extends Controller
 {
@@ -206,9 +207,7 @@ class CompanyController extends Controller
         return redirect()->route('admin.company.index')->with('success', 'Company updated successfully.');
     }
 
-    /**
-     * Remove the specified company
-     */
+
     public function destroy(Company $company)
     {
         // Only super admin can delete companies
@@ -216,17 +215,17 @@ class CompanyController extends Controller
             return redirect()->back()->with('error', 'Unauthorized access.');
         }
 
-        if($company->users()) {
-           $company_user = $company->users()->get();
-           dd($company_user->pluck('company_id'));
-        }
+        // if($company->users()) {
+        //    $company_user = $company->users()->get();
+        //    dd($company_user->pluck('company_id'));
+        // }
 
         // Delete company logo
         if ($company->logo) {
             Storage::disk('public')->delete($company->logo);
         }
 
-        // $company->delete();
+        $company->delete();
 
         return redirect()->route('admin.company.index')->with('success', 'Company deleted successfully.');
     }

@@ -247,6 +247,28 @@ class UserManagementController extends Controller
         return redirect()->route('admin.user.index')->with('success', 'User deleted successfully.');
     }
 
+
+public function removeFormCompany(Request $request, $id)
+{
+    // Find the user
+    $user = User::findOrFail($id);
+
+    // Get the company from the request
+    $company = Company::findOrFail($request->query('company_id'));
+
+    // Optional: Debug check
+    // dd($company->id);
+
+    // Detach the user from the company
+    $company->users()->detach($user->id);
+
+    // Redirect with success message
+    return to_route('admin.company.users', ['company' => $company->id])
+        ->with('success', "User: {$user->name} has been removed from {$company->name} company");
+
+}
+
+
     public function unassigned(Request $request)
     {
         $companyId = $request->get('company_id');

@@ -49,7 +49,7 @@
                                         <span class="badge bg-success">Creator</span>
                                         @break --}}
                                     @default
-                                        <span class="badge bg-secondary">{{ ucfirst($user->role) }}</span>
+                                        <span class="badge bg-secondary">{{ ucfirst($user->roleForCompany(request('company_id'))) }}</span>
                                 @endswitch
                             </p>
                             {{-- <p><strong>Status:</strong>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
 
-                    @if(Auth::user()->canManageCompany($user->company_id))
+                    @if(Auth::user()->canManageCompany(request('company_id')))
                     <div class="mt-3">
                         <a href="{{ route('admin.user.edit', $user) }}" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Edit User
@@ -147,15 +147,15 @@
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             Can Manage Company
-                                            <span class="badge bg-{{ $user->canManageCompany() ? 'success' : 'danger' }}">
-                                                {{ $user->canManageCompany() ? 'Yes' : 'No' }}
+                                            <span class="badge bg-{{ $user->canManageCompany(request('company_id')) ? 'success' : 'danger' }}">
+                                                {{ $user->canManageCompany(request('company_id')) ? 'Yes' : 'No' }}
                                             </span>
                                         </li>
 
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             Is Company Admin
-                                            <span class="badge bg-{{ $user->isCompanyAdmin() ? 'primary' : 'secondary' }}">
-                                                {{ $user->isCompanyAdmin() ? 'Yes' : 'No' }}
+                                            <span class="badge bg-{{ $user->isCompanyAdmin(request('company_id')) ? 'primary' : 'secondary' }}">
+                                                {{ $user->isCompanyAdmin(request('company_id')) ? 'Yes' : 'No' }}
                                             </span>
                                         </li>
                                     </ul>
@@ -174,18 +174,22 @@
                 <a href="{{ route('admin.user.index') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Users
                 </a>
-                @if(Auth::user()->canManageCompany($user->company_id) && !$user->isSuperAdmin() && $user->id !== Auth::id())
-                <form action="{{ route('admin.user.delete', $user) }}"
-                      method="POST"
-                      class="d-inline"
-                      onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete User
-                    </button>
-                </form>
-                @endif
+                @if(
+    Auth::user()->canManageCompany(request('company_id')) &&
+    $user->id !== Auth::id() &&
+    (
+        Auth::user()->isSuperAdmin() || // SuperAdmin can delete anyone
+        ($user->roleForCompany(request('company_id')) !== 'admin')        // Admin can delete if target is NOT a SuperAdmin
+    ))
+
+
+              <a class="btn btn-danger"
+                                                         href="{{ route('admin.user.remove-form-com',['id' => $user->id, 'company_id' => request('company_id') ]) }}"
+                                                          >
+                                                           <i class="fas fa-trash mr-2"> Remove User</i>
+                                                         </a>
+
+            @endif
             </div>
         </div>
     </div>

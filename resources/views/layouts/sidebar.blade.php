@@ -35,16 +35,18 @@
 
                  </li>
 
-                 @if (Auth::user()->isCompanyAdmin())
-                     <li @class([
-                         'nav-item',
-                         'active' => request()->routeIs('admin.company.category'),
-                     ])>
-                         <a href="{{ route('admin.company.category.search') }}">
-                             <i class="fas fa-layer-group"></i>
-                             <span class="sub-item">Category</span>
-                         </a>
-                     </li>
+                 @if (Auth::user()->companies)
+                     @if (Auth::user()->isCompanyAdmin())
+                         <li @class([
+                             'nav-item',
+                             'active' => request()->routeIs('admin.company.category'),
+                         ])>
+                             <a href="{{ route('admin.company.category.search') }}">
+                                 <i class="fas fa-layer-group"></i>
+                                 <span class="sub-item">Category</span>
+                             </a>
+                         </li>
+                     @endif
                  @endif
 
 
@@ -80,85 +82,6 @@
                          <span class="sub-item">Users</span>
                      </a>
                  </li>
-
-                 {{-- <li class="nav-item">
-                     <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                         <i class="fas fa-th-list"></i>
-                         <p>Sidebar Layouts</p>
-                         <span class="caret"></span>
-                     </a>
-                     <div class="collapse" id="sidebarLayouts">
-                         <ul class="nav nav-collapse">
-                             <li>
-                                 <a href="sidebar-style-2.html">
-                                     <span class="sub-item">Sidebar Style 2</span>
-                                 </a>
-                             </li>
-                             <li>
-                                 <a href="icon-menu.html">
-                                     <span class="sub-item">Icon Menu</span>
-                                 </a>
-                             </li>
-                         </ul>
-                     </div>
-                 </li> --}}
-
-
-
-
-
-                 {{-- <li class="nav-item">
-                     <a data-bs-toggle="collapse" href="#submenu">
-                         <i class="fas fa-bars"></i>
-                         <p>Menu Levels</p>
-                         <span class="caret"></span>
-                     </a>
-                     <div class="collapse" id="submenu">
-                         <ul class="nav nav-collapse">
-                             <li>
-                                 <a data-bs-toggle="collapse" href="#subnav1">
-                                     <span class="sub-item">Level 1</span>
-                                     <span class="caret"></span>
-                                 </a>
-                                 <div class="collapse" id="subnav1">
-                                     <ul class="nav nav-collapse subnav">
-                                         <li>
-                                             <a href="#">
-                                                 <span class="sub-item">Level 2</span>
-                                             </a>
-                                         </li>
-                                         <li>
-                                             <a href="#">
-                                                 <span class="sub-item">Level 2</span>
-                                             </a>
-                                         </li>
-                                     </ul>
-                                 </div>
-                             </li>
-                             <li>
-                                 <a data-bs-toggle="collapse" href="#subnav2">
-                                     <span class="sub-item">Level 1</span>
-                                     <span class="caret"></span>
-                                 </a>
-                                 <div class="collapse" id="subnav2">
-                                     <ul class="nav nav-collapse subnav">
-                                         <li>
-                                             <a href="#">
-                                                 <span class="sub-item">Level 2</span>
-                                             </a>
-                                         </li>
-                                     </ul>
-                                 </div>
-                             </li>
-                             <li>
-                                 <a href="#">
-                                     <span class="sub-item">Level 1</span>
-                                 </a>
-                             </li>
-                         </ul>
-                     </div>
-                 </li> --}}
-
 
              </ul>
          </div>
